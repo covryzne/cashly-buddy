@@ -9,6 +9,7 @@ import { demoCredentials } from "@/mocks/fixtures/auth";
 import { loginSchema, type LoginValues } from "./login-schema";
 import { AuthPasswordField } from "./auth-password-field";
 import { GoogleSignInButton } from "./google-sign-in-button";
+import { autofillHydrationProps } from "./browser-autofill";
 
 export function LoginForm() {
   const router = useRouter();
@@ -73,6 +74,7 @@ export function LoginForm() {
         <span>atau masuk dengan email</span>
       </div>
       <form
+        {...autofillHydrationProps}
         ref={formRef}
         className="login-form"
         onSubmit={submit}
@@ -86,6 +88,7 @@ export function LoginForm() {
           <div className="input-wrap">
             <Mail size={19} aria-hidden="true" />
             <Input
+              {...autofillHydrationProps}
               id="login-email"
               type="email"
               inputMode="email"

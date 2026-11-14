@@ -5,6 +5,7 @@ import { useEffect, useId, useState } from "react";
 import { AssetLoader } from "@/components/shared/asset-loader";
 import {
   Camera,
+  MessageCircle,
   Check,
   ClipboardCheck,
   ReceiptText,
@@ -41,7 +42,31 @@ const stages = [
   },
 ];
 
-export function ReceiptAnalysis({ example }: { example: boolean }) {
+export function ReceiptAnalysis({
+  example,
+  source = "photo",
+}: {
+  example: boolean;
+  source?: "photo" | "chat" | "voice";
+}) {
+  const fromChat = source !== "photo";
+  const activeStages = fromChat
+    ? [
+        {
+          title: "Catatan diterima",
+          detail: "Pesanmu siap dirapikan",
+          Icon: MessageCircle,
+          progress: 16,
+        },
+        {
+          ...stages[1],
+          title: "Menyiapkan tanggal & kategori",
+          detail: "Periksa kembali di rincian nanti",
+        },
+        { ...stages[2], detail: "Pastikan nominalnya sesuai catatanmu" },
+        stages[3],
+      ]
+    : stages;
   const [stage, setStage] = useState(0);
   const gradientId = useId();
   useEffect(() => {
@@ -58,8 +83,12 @@ export function ReceiptAnalysis({ example }: { example: boolean }) {
       <div className="analysis-toast">
         <span />
         <Zap size={16} />
-        {example ? "Struk contoh siap!" : "Foto dijepret!"} Yuk, tinjau bersama
-        Mochi
+        {fromChat
+          ? "Catatan diterima!"
+          : example
+            ? "Struk contoh siap!"
+            : "Foto dijepret!"}{" "}
+        Yuk, tinjau bersama Mochi
       </div>
       <section
         className="analysis-panel"
@@ -78,18 +107,24 @@ export function ReceiptAnalysis({ example }: { example: boolean }) {
         </div>
         <span className="pill analysis-demo-badge">
           <span />
-          Analisis struk
+          {fromChat ? "Analisis catatan" : "Analisis struk"}
         </span>
         <h3 id="receipt-analysis-title">
-          Sedang menganalisis struk kamu, tunggu ya!
+          {fromChat
+            ? "Mochi sedang merapikan catatanmu, tunggu ya!"
+            : "Sedang menganalisis struk kamu, tunggu ya!"}
         </h3>
         <p className="analysis-description">
-          Menyiapkan nominal, merchant, dan rincian item untuk kamu tinjau.
+          {fromChat
+            ? "Menyiapkan nama pembelian, nominal, dan rincian item untuk kamu tinjau."
+            : "Menyiapkan nominal, merchant, dan rincian item untuk kamu tinjau."}
         </p>
         <div
           className="analysis-ring"
           role="progressbar"
-          aria-label="Progres analisis struk"
+          aria-label={
+            fromChat ? "Progres analisis catatan" : "Progres analisis struk"
+          }
           aria-valuemin={0}
           aria-valuemax={100}
           aria-valuenow={progress}
@@ -133,10 +168,15 @@ export function ReceiptAnalysis({ example }: { example: boolean }) {
           </div>
         </div>
         <p className="analysis-live" role="status" aria-live="polite">
-          {stages[stage].title}…
+          {activeStages[stage].title}…
         </p>
-        <ol className="analysis-stages" aria-label="Tahap analisis struk">
-          {stages.map(({ title, detail, Icon }, index) => (
+        <ol
+          className="analysis-stages"
+          aria-label={
+            fromChat ? "Tahap analisis catatan" : "Tahap analisis struk"
+          }
+        >
+          {activeStages.map(({ title, detail, Icon }, index) => (
             <li
               key={title}
               className={

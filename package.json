@@ -9,15 +9,22 @@
     "lint": "eslint",
     "icons:generate": "node scripts/generate-pwa-icons.mjs",
     "test:e2e": "playwright test",
-    "test:dev-styles": "node scripts/check-date-time-dev.mjs && node scripts/check-scan-dev.mjs"
+    "test:dev-styles": "node scripts/check-date-time-dev.mjs && node scripts/check-scan-dev.mjs && node scripts/check-chat-dev.mjs && node scripts/check-voice-dev.mjs",
+    "mcp:check": "node scripts/query-shadcn-mcp.mjs",
+    "test:dev-browser": "node scripts/check-auth-dev.mjs && node scripts/check-ios-autofill-dev.mjs && node scripts/check-voice-dev.mjs",
+    "test:dev-autofill": "node scripts/check-ios-autofill-dev.mjs",
+    "diagnose:hydration-extension": "node scripts/diagnose-extension-hydration.mjs"
   },
   "dependencies": {
     "@base-ui/react": "1.9.0",
     "@splinetool/react-spline": "^4.2.0",
     "@splinetool/runtime": "^2.0.183",
+    "class-variance-authority": "^0.7.1",
+    "cn": "^0.2.4",
     "date-fns": "^4.4.0",
     "loading-dev": "0.3.8",
     "lucide-react": "^1.72.0",
+    "motion": "^14.14.0",
     "next": "16.4.6",
     "react": "19.3.0",
     "react-datepicker": "^9.1.0",
@@ -35,6 +42,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.4.6",
     "postcss": "8.5.33",
+    "shadcn": "^4.23.0",
     "sharp": "0.35.5",
     "tailwindcss": "4.3.3",
     "typescript": "^5"

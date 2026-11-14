@@ -1,4 +1,5 @@
 "use client";
+import { autofillHydrationProps } from "./browser-autofill";
 
 import { useRef, useState, useTransition, type FormEvent } from "react";
 import Link from "next/link";
@@ -120,6 +121,7 @@ export function RegisterForm() {
         <span>atau daftar dengan email</span>
       </div>
       <form
+        {...autofillHydrationProps}
         ref={formRef}
         className="login-form register-form"
         onSubmit={submit}
@@ -132,6 +134,7 @@ export function RegisterForm() {
           <div className="input-wrap">
             <UserRound size={19} aria-hidden="true" />
             <Input
+              {...autofillHydrationProps}
               id="register-name"
               autoComplete="off"
               placeholder="Mochi boleh panggil kamu siapa?"
@@ -153,6 +156,7 @@ export function RegisterForm() {
           <div className="input-wrap">
             <Mail size={19} aria-hidden="true" />
             <Input
+              {...autofillHydrationProps}
               id="register-email"
               type="email"
               inputMode="email"

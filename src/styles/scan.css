@@ -930,63 +930,134 @@
   padding: 0;
   list-style: none;
   display: grid;
-  gap: 12px;
+  gap: 14px;
 }
 .scan-items > li {
   padding: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  box-shadow: var(--card-shadow);
+  transition:
+    border-color 160ms,
+    box-shadow 160ms;
+}
+.scan-items > li:focus-within {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-shadow);
+}
+.scan-items-card .scan-section-title h3 {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 14px;
+}
+.scan-item-count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 24px;
+  min-height: 24px;
+  padding: 2px 6px;
+  border-radius: 8px;
   background: var(--subtle);
-  border-radius: 14px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+}
+.scan-section-title .scan-add-item {
+  padding: 0 10px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--primary-soft);
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 650;
 }
 .scan-item-heading {
   display: flex;
   align-items: center;
-  gap: 6px;
-}
-.scan-item-number {
-  display: grid;
-  place-items: center;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background: var(--primary-soft);
-  color: var(--primary-text);
-  font-size: 11px;
-  flex-shrink: 0;
+  gap: 8px;
 }
 .scan-item-name {
   flex: 1;
   min-width: 0;
 }
 .scan-item-name .input {
-  padding: 8px;
+  padding: 8px 4px;
+  background: transparent;
+  border-color: transparent;
+  border-radius: 10px;
+  font-weight: 650;
+  text-overflow: ellipsis;
 }
-.scan-item-heading .icon-button {
-  width: 36px;
+.scan-item-name .input:focus {
+  background: var(--background);
+  border-color: var(--primary);
+  text-overflow: clip;
+}
+.scan-item-name .input[aria-invalid="true"] {
+  border-color: var(--danger);
+}
+.scan-item-heading .scan-item-remove {
+  width: 44px;
   height: 44px;
   flex-shrink: 0;
+  border-radius: 12px;
+  background: var(--subtle);
   color: var(--muted);
 }
 .scan-item-values {
   display: grid;
-  grid-template-columns: 75px minmax(0, 1fr);
-  gap: 10px;
-  margin-top: 10px;
+  grid-template-columns: 76px minmax(0, 1fr);
+  gap: 12px;
+  margin-top: 12px;
 }
-.scan-item-values label {
-  font-size: 10px;
+.scan-item-values .scan-field > label {
+  font-size: 11px;
+  font-weight: 500;
+  margin-bottom: 6px;
 }
-.scan-item-total {
+.scan-item-values .input {
+  background: var(--background);
+  border-radius: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.scan-item-values > .scan-field:first-child .input {
+  text-align: center;
+}
+.scan-item-price {
+  position: relative;
+}
+.scan-item-price > span {
+  position: absolute;
+  inset: 0 auto 0 12px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  margin-top: 10px;
-  font-size: 10px;
   color: var(--muted);
-}
-.scan-item-total .money {
-  color: var(--foreground);
   font-size: 12px;
+  pointer-events: none;
+}
+.scan-item-price .input {
+  padding-left: 36px;
+  text-align: right;
+}
+@media (hover: hover) and (pointer: fine) {
+  .scan-item-name .input:hover:not(:focus) {
+    background: var(--subtle);
+  }
+  .scan-item-heading .scan-item-remove:hover {
+    background: color-mix(in srgb, var(--danger) 12%, var(--surface));
+    color: var(--danger);
+  }
+  .scan-section-title .scan-add-item:hover {
+    border-color: var(--primary);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .scan-items > li {
+    transition: none;
+  }
 }
 .scan-adjustments {
   display: grid;

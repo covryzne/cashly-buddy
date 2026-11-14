@@ -61,6 +61,12 @@ Referensi desain berada di `../design-references/`, di luar aplikasi Next.js.
 
 Checklist implementasi dan hasil validasi: `docs/asset-cache.md`.
 
+Worker v2 mempertahankan cookie browser pada request aset satu origin agar gambar
+tetap dimuat melalui private dev tunnel. Spline CDN tetap tanpa credentials.
+Sesudah pembaruan worker, buka ulang/reload halaman; jika halaman pertama masih
+dikendalikan worker lama, reload sekali lagi setelah worker baru aktif. Tidak
+perlu mengubah visibilitas tunnel atau membagikan token akses.
+
 - Root mendaftarkan `/asset-worker.js` pada HTTPS/localhost, termasuk tunnel dev.
   Saat form login muncul, gambar/ikon runtime dan scene Mochi disiapkan di
   background tanpa menahan login atau membuat canvas/WebGL.
@@ -152,6 +158,15 @@ flag dibersihkan ketika akses ditolak/dicabut. Kamera tetap berhenti saat ditutu
 
 ## Aturan penempatan kode
 
+Metode **Chat manual** menggantikan input manual langsung: pesan pembelian →
+analisis → rincian yang dapat dikoreksi → konfirmasi. Panduan, batas parser
+lokal, komponen shadcn dan setup MCP: [docs/chat-manual.md](docs/chat-manual.md).
+Keputusan: [ADR-0029](../specs/ADR/0029-chat-manual-expense-and-shadcn-mcp.md).
+
+**Voice note kilat** sudah menyediakan perekaman mikrofon dan playback lokal,
+review setelah Tinjau, serta transkrip yang dapat diedit di rincian. Transkripsi otomatis belum
+terhubung. Detail dan batas implementasi: [docs/voice-note.md](docs/voice-note.md).
+
 - Alias `@/` mengarah ke `src/`, misalnya `@/components/shared/AppShell`.
 - `app/` menyusun halaman dari komponen; gunakan Server Components secara
   default dan Client Components untuk interaksi atau browser APIs.
@@ -183,3 +198,22 @@ npm run test:e2e
 Tes E2E memerlukan Google Chrome lokal. Jalankan build sebelum E2E karena
 Playwright menjalankan production server di port 3127. Screenshot setiap
 viewport tersimpan di `test-results/` (diabaikan Git).
+
+## Kredit komponen
+
+- Fluid Orb oleh [Rare UI](https://rareui.com), Copyright © 2026 Swami Malode.
+  Dipasang dari `swamimalode07/rare-ui/fluid-orb`, disesuaikan untuk Cashly;
+  [lisensi dan atribusi](src/components/ui/RARE-UI-LICENSE.txt).
+- VoiceNote, RollingText dan utilitas oleh [Detent](https://detentui.com),
+  Copyright © 2026 Detent, MIT. Source registry disesuaikan ke token Cashly dan
+  audio rekaman nyata; [lisensi](src/components/detent/LICENSE).
+
+Detail integrasi: [docs/voice-orb-player.md](docs/voice-orb-player.md).
+
+Diagnostik Chrome/hydration dan perbaikan orb pada dev Strict Mode:
+[docs/browser-debugging.md](docs/browser-debugging.md).
+Jalankan `npm run test:dev-browser` untuk memeriksa hydration dan WebGL hidup
+langsung di dev server.
+`npm run test:dev-autofill` mereproduksi ID autofill Chrome iOS sebelum hydration
+pada login, register dan lupa sandi, termasuk kontrol untuk mendeteksi mismatch
+lain di luar elemen form yang diberi exception.

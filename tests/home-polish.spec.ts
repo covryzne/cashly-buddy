@@ -35,7 +35,7 @@ for (const width of [360, 390, 1280]) {
         dialog.getByRole("button", { name: /Voice note kilat/ }),
       ).toBeVisible();
       await expect(
-        dialog.getByRole("button", { name: /Input manual lengkap/ }),
+        dialog.getByRole("button", { name: /Chat manual/ }),
       ).toBeVisible();
       expect(
         await page.evaluate(

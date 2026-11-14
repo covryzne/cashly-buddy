@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { ArrowRight, ScanLine, Mic, NotebookPen } from "lucide-react";
+import { ArrowRight, ScanLine, Mic, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const methods = [
@@ -15,14 +15,14 @@ const methods = [
     description: "Ceritakan pengeluaranmu lewat suara.",
     icon: Mic,
     tone: "voice",
-    status: "Segera hadir",
+    status: "Rekam suara",
   },
   {
-    title: "Input manual lengkap",
-    description: "Isi nominal, kategori, dan catatan sendiri.",
-    icon: NotebookPen,
+    title: "Chat manual",
+    description: "Ceritakan pembelianmu, Mochi rapikan rinciannya.",
+    icon: MessageCircle,
     tone: "manual",
-    status: "Segera hadir",
+    status: "Lewat teks",
   },
 ];
 

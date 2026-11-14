@@ -97,6 +97,51 @@ const installCameraMonitor = async (page: Page, pending = false) => {
   );
 };
 
+test("Scrollbar tersembunyi tetap mendukung scroll halaman, wheel, dan keyboard pada review", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/beranda");
+  await page.mouse.move(190, 600);
+  await page.mouse.wheel(0, 500);
+  await expect
+    .poll(() => page.evaluate(() => window.scrollY))
+    .toBeGreaterThan(0);
+  await openScan(page);
+  await page
+    .getByRole("button", { name: "Coba struk contoh", exact: true })
+    .click();
+  const dialog = page.getByRole("dialog", {
+    name: "Review struk",
+    exact: true,
+  });
+  await expect(dialog).toBeVisible();
+  await expect(dialog).toHaveCSS("scrollbar-width", "none");
+  await page.mouse.move(190, 500);
+  const start = await dialog.evaluate((element) => element.scrollTop);
+  await page.mouse.wheel(0, 500);
+  await expect
+    .poll(() => dialog.evaluate((element) => element.scrollTop))
+    .toBeGreaterThan(start);
+  await dialog
+    .getByRole("button", { name: "Tutup dialog" })
+    .evaluate((element: HTMLButtonElement) =>
+      element.focus({ preventScroll: true }),
+    );
+  const beforeKeyboard = await dialog.evaluate((element) => element.scrollTop);
+  await page.keyboard.press("PageDown");
+  await expect
+    .poll(() => dialog.evaluate((element) => element.scrollTop))
+    .toBeGreaterThan(beforeKeyboard);
+  await page.keyboard.press("End");
+  await expect(
+    page.getByLabel("Waktu (WIB)", { exact: true }),
+  ).toBeInViewport();
+  await expect(
+    dialog.getByRole("button", { name: /Simpan pengeluaran/ }),
+  ).toBeInViewport({ ratio: 1 });
+});
+
 test("Crop foto mengikuti jendela pada video fullscreen", () => {
   const bounds = receiptCaptureBounds(
     { width: 1280, height: 720 },
@@ -197,6 +242,13 @@ for (const width of [360, 390, 1280]) {
       ).toEqual([]);
       await page.screenshot({
         path: `test-results/scan-review-${width}-${theme}.png`,
+      });
+      await dialog
+        .locator(".scan-items > li")
+        .first()
+        .evaluate((element) => element.scrollIntoView({ block: "center" }));
+      await page.screenshot({
+        path: `test-results/scan-review-items-${width}-${theme}.png`,
       });
       await dialog.getByLabel("Harga satuan item 1").fill("10000");
       await dialog.getByLabel("Jumlah item 1").fill("2");

@@ -6,6 +6,8 @@ import "../styles/tokens.css";
 import "./globals.css";
 import "../styles/asset-loader.css";
 import "../styles/scan.css";
+import "../styles/expense-chat.css";
+import "../styles/voice.css";
 import "../styles/date-time-picker.css";
 
 const jakarta = Plus_Jakarta_Sans({

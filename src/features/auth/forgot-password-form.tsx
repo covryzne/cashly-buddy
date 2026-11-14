@@ -1,4 +1,5 @@
 "use client";
+import { autofillHydrationProps } from "./browser-autofill";
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import Link from "next/link";
@@ -85,6 +86,7 @@ export function ForgotPasswordForm() {
         </div>
       ) : (
         <form
+          {...autofillHydrationProps}
           ref={formRef}
           className="login-form forgot-password-form"
           onSubmit={submit}
@@ -97,6 +99,7 @@ export function ForgotPasswordForm() {
             <div className="input-wrap">
               <Mail size={19} aria-hidden="true" />
               <Input
+                {...autofillHydrationProps}
                 id="forgot-password-email"
                 type="email"
                 inputMode="email"

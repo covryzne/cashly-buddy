@@ -10,7 +10,7 @@ type FetchEvent = {
 
 function worker(
   storage: unknown,
-  fetcher: (request: Request) => Promise<Response>,
+  fetcher: (request: Request, init?: RequestInit) => Promise<Response>,
 ) {
   const handlers = new Map<string, (event: FetchEvent) => void>();
   runInNewContext(source, {
@@ -115,4 +115,32 @@ test("Error server dan HTML pengganti gambar tidak dimasukkan cache", async () =
     new Request("https://cashly.test/branding/cashly-header.webp"),
   );
   expect(saved).toEqual([]);
+});
+
+test("Sesi tunnel dibawa untuk aset satu origin; cookie CDN tetap tidak dikirim", async () => {
+  const requests: Request[] = [];
+  const dispatch = worker(
+    {
+      open: async () => {
+        throw new Error("Storage unavailable");
+      },
+    },
+    async (request, init) => {
+      requests.push(new Request(request, init));
+      return new Response("asset", {
+        headers: { "Content-Type": "application/octet-stream" },
+      });
+    },
+  );
+  await dispatch(
+    new Request("https://cashly.test/mascot/mochi-crown-transparent.webp"),
+  );
+  await dispatch(
+    new Request(
+      "https://prod.spline.design/R4tRoaLYG0dA8fQD/scene.splinecode",
+      { credentials: "include" },
+    ),
+  );
+  expect(requests[0].credentials).toBe("same-origin");
+  expect(requests[1].credentials).toBe("omit");
 });

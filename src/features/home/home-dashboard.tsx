@@ -31,6 +31,8 @@ import { WeeklyStory } from "@/components/finance/weekly-story";
 import { FeaturePreview } from "@/components/shared/feature-preview";
 import { Dialog } from "@/components/ui/dialog";
 import { ScanReceiptFlow } from "@/features/scan/scan-receipt-flow";
+import { ChatReceiptFlow } from "@/features/expenses/chat-receipt-flow";
+import { VoiceReceiptFlow } from "@/features/expenses/voice-receipt-flow";
 
 const subscribeClock = (notify: () => void) => {
   window.addEventListener("focus", notify);
@@ -40,6 +42,8 @@ const subscribeClock = (notify: () => void) => {
 type Panel =
   | { kind: "add" }
   | { kind: "scan" }
+  | { kind: "chat" }
+  | { kind: "voice" }
   | { kind: "period" }
   | { kind: "upcoming"; label: string }
   | { kind: "category"; category: Category }
@@ -278,110 +282,133 @@ export function HomeDashboard() {
       {panel?.kind === "scan" && (
         <ScanReceiptFlow onBack={back} onClose={close} />
       )}
-      {panel && panel.kind !== "scan" && (
-        <Dialog
-          title={panelTitle}
-          onClose={close}
-          onBack={canGoBack ? back : undefined}
-          variant={
-            panel.kind === "add" || panel.kind === "expense"
-              ? "sheet"
-              : "default"
-          }
-          className={
-            panel.kind === "expense" ? "expense-detail-dialog" : undefined
-          }
-          footer={
-            panel.kind === "expense" ? (
-              <ExpenseDetailActions onDone={close} />
-            ) : undefined
-          }
-          description={
-            panel.kind === "add"
-              ? "Pilih cara input yang paling praktis untukmu"
-              : undefined
-          }
-        >
-          {panel.kind !== "add" && panel.kind !== "expense" && (
-            <span className="pill dialog-demo">
-              {panel.kind === "missions"
-                ? data.period
-                : panel.kind === "weekly"
-                  ? weekly.period
-                  : snapshot.period}
-            </span>
-          )}
-          {panel.kind === "add" && (
-            <QuickAddMethods
-              onClose={close}
-              onChoose={(label) =>
-                push(
-                  label === "Scan struk otomatis"
-                    ? { kind: "scan" }
-                    : { kind: "upcoming", label },
-                )
-              }
-            />
-          )}
-          {panel.kind === "period" && (
-            <PeriodPicker
-              selection={selection}
-              onApply={(value) => {
-                setPeriodOverride(value);
-                close();
-              }}
-            />
-          )}
-          {panel.kind === "upcoming" && <FeaturePreview label={panel.label} />}
-          {(panel.kind === "category" || panel.kind === "transactions") && (
-            <>
-              {panel.kind === "category" && (
-                <div className="category-total">
-                  <span>Total {panel.category.label.toLowerCase()}</span>
-                  <MoneyDisplay amountIdr={panel.category.amountIdr} />
-                </div>
-              )}
-              <div className="transaction-list">
-                {selectedExpenses.length === 0 && (
-                  <p className="empty-expenses">
-                    Belum ada transaksi pada periode ini.
-                  </p>
-                )}
-                {selectedExpenses.map((expense) => (
-                  <TransactionRow
-                    key={expense.id}
-                    expense={expense}
-                    category={data.categories.find(
-                      (category) => category.code === expense.categoryCode,
-                    )!}
-                    onSelect={() => push({ kind: "expense", expense })}
-                  />
-                ))}
-              </div>
-            </>
-          )}
-
-          {panel.kind === "expense" && (
-            <ExpenseDetail
-              expense={panel.expense}
-              period={snapshot.period}
-              category={data.categories.find(
-                (category) => category.code === panel.expense.categoryCode,
-              )!}
-            />
-          )}
-          {panel.kind === "missions" && (
-            <MissionBoard onOpenReview={() => push({ kind: "weekly" })} />
-          )}
-          {panel.kind === "weekly" && (
-            <WeeklyStory
-              totalIdr={weekly.totalIdr}
-              count={weekly.count}
-              categories={weekly.categories}
-            />
-          )}
-        </Dialog>
+      {panel?.kind === "chat" && (
+        <ChatReceiptFlow onBack={back} onClose={close} />
       )}
+      {panel?.kind === "voice" && (
+        <VoiceReceiptFlow
+          onBack={back}
+          onClose={close}
+          onChat={() => push({ kind: "chat" })}
+        />
+      )}
+      {panel &&
+        panel.kind !== "scan" &&
+        panel.kind !== "chat" &&
+        panel.kind !== "voice" && (
+          <Dialog
+            title={panelTitle}
+            onClose={close}
+            onBack={canGoBack ? back : undefined}
+            variant={
+              panel.kind === "add" || panel.kind === "expense"
+                ? "sheet"
+                : "default"
+            }
+            className={
+              panel.kind === "expense"
+                ? "expense-detail-dialog"
+                : panel.kind === "add"
+                  ? "quick-add-dialog"
+                  : undefined
+            }
+            footer={
+              panel.kind === "expense" ? (
+                <ExpenseDetailActions onDone={close} />
+              ) : undefined
+            }
+            description={
+              panel.kind === "add"
+                ? "Pilih cara input yang paling praktis untukmu"
+                : undefined
+            }
+          >
+            {panel.kind !== "add" && panel.kind !== "expense" && (
+              <span className="pill dialog-demo">
+                {panel.kind === "missions"
+                  ? data.period
+                  : panel.kind === "weekly"
+                    ? weekly.period
+                    : snapshot.period}
+              </span>
+            )}
+            {panel.kind === "add" && (
+              <QuickAddMethods
+                onClose={close}
+                onChoose={(label) =>
+                  push(
+                    label === "Scan struk otomatis"
+                      ? { kind: "scan" }
+                      : label === "Chat manual"
+                        ? { kind: "chat" }
+                        : label === "Voice note kilat"
+                          ? { kind: "voice" }
+                          : { kind: "upcoming", label },
+                  )
+                }
+              />
+            )}
+            {panel.kind === "period" && (
+              <PeriodPicker
+                selection={selection}
+                onApply={(value) => {
+                  setPeriodOverride(value);
+                  close();
+                }}
+              />
+            )}
+            {panel.kind === "upcoming" && (
+              <FeaturePreview label={panel.label} />
+            )}
+            {(panel.kind === "category" || panel.kind === "transactions") && (
+              <>
+                {panel.kind === "category" && (
+                  <div className="category-total">
+                    <span>Total {panel.category.label.toLowerCase()}</span>
+                    <MoneyDisplay amountIdr={panel.category.amountIdr} />
+                  </div>
+                )}
+                <div className="transaction-list">
+                  {selectedExpenses.length === 0 && (
+                    <p className="empty-expenses">
+                      Belum ada transaksi pada periode ini.
+                    </p>
+                  )}
+                  {selectedExpenses.map((expense) => (
+                    <TransactionRow
+                      key={expense.id}
+                      expense={expense}
+                      category={data.categories.find(
+                        (category) => category.code === expense.categoryCode,
+                      )!}
+                      onSelect={() => push({ kind: "expense", expense })}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
+
+            {panel.kind === "expense" && (
+              <ExpenseDetail
+                expense={panel.expense}
+                period={snapshot.period}
+                category={data.categories.find(
+                  (category) => category.code === panel.expense.categoryCode,
+                )!}
+              />
+            )}
+            {panel.kind === "missions" && (
+              <MissionBoard onOpenReview={() => push({ kind: "weekly" })} />
+            )}
+            {panel.kind === "weekly" && (
+              <WeeklyStory
+                totalIdr={weekly.totalIdr}
+                count={weekly.count}
+                categories={weekly.categories}
+              />
+            )}
+          </Dialog>
+        )}
     </>
   );
 }

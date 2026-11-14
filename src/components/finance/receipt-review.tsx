@@ -2,6 +2,8 @@ import Image from "next/image";
 import { useRef, type ReactNode } from "react";
 import {
   CreditCard,
+  MessageCircle,
+  Mic,
   Plus,
   ReceiptText,
   ShoppingBag,
@@ -11,7 +13,6 @@ import { Input } from "@/components/ui/input";
 import { homeFixture } from "@/mocks/fixtures/home";
 import {
   paymentMethods,
-  previewInteger,
   receiptAmounts,
   type ReceiptDraft,
   type ReceiptPhoto,
@@ -25,7 +26,7 @@ function Field({
   error,
   children,
 }: {
-  label: string;
+  label: ReactNode;
   name: string;
   error?: string;
   children: ReactNode;
@@ -46,6 +47,8 @@ function Field({
 export function ReceiptReview({
   draft,
   photo,
+  text,
+  textSource = "chat",
   manual = false,
   errors,
   formId,
@@ -54,7 +57,9 @@ export function ReceiptReview({
   onRetake,
 }: {
   draft: ReceiptDraft;
-  photo: ReceiptPhoto;
+  photo?: ReceiptPhoto;
+  text?: string;
+  textSource?: "chat" | "voice";
   manual?: boolean;
   errors: Record<string, string>;
   formId: string;
@@ -94,7 +99,7 @@ export function ReceiptReview({
       }}
     >
       <div className="scan-photo-summary">
-        {photo.url ? (
+        {photo?.url ? (
           <Image
             src={photo.url}
             unoptimized
@@ -104,31 +109,50 @@ export function ReceiptReview({
           />
         ) : (
           <span className="scan-sample-thumb">
-            <ReceiptText size={30} />
+            {text !== undefined ? (
+              textSource === "voice" ? (
+                <Mic size={30} />
+              ) : (
+                <MessageCircle size={30} />
+              )
+            ) : (
+              <ReceiptText size={30} />
+            )}
           </span>
         )}
         <div>
           <span className="pill">
-            {manual
-              ? "Input manual"
-              : photo.source === "example"
-                ? "Struk contoh"
-                : photo.source === "camera"
-                  ? "Foto struk siap"
-                  : "Foto siap ditinjau"}
+            {text !== undefined
+              ? textSource === "voice"
+                ? "Catatan dari voice note"
+                : "Catatan dari chat"
+              : manual
+                ? "Input manual"
+                : photo?.source === "example"
+                  ? "Struk contoh"
+                  : photo?.source === "camera"
+                    ? "Foto struk siap"
+                    : "Foto siap ditinjau"}
           </span>
           <p>
-            {manual
-              ? "Isi nama toko, item, dan nominal sendiri. Rincian tidak diisi otomatis."
-              : photo.source === "example"
-                ? "Periksa nama toko, nominal, dan rincian item sebelum melanjutkan."
-                : photo.source === "camera"
-                  ? "Foto berhasil diambil. Periksa dan sesuaikan rincian dengan strukmu."
-                  : "Lengkapi rincian sesuai foto strukmu."}
+            {text !== undefined
+              ? text ||
+                "Transkrip belum tersedia. Tambahkan transkrip atau lengkapi rincian di bawah."
+              : manual
+                ? "Isi nama toko, item, dan nominal sendiri. Rincian tidak diisi otomatis."
+                : photo?.source === "example"
+                  ? "Periksa nama toko, nominal, dan rincian item sebelum melanjutkan."
+                  : photo?.source === "camera"
+                    ? "Foto berhasil diambil. Periksa dan sesuaikan rincian dengan strukmu."
+                    : "Lengkapi rincian sesuai foto strukmu."}
           </p>
         </div>
         <button type="button" className="text-button" onClick={onRetake}>
-          Ulang
+          {text !== undefined
+            ? textSource === "voice"
+              ? "Ubah transkrip"
+              : "Ubah pesan"
+            : "Ulang"}
         </button>
       </div>
       {Object.keys(errors).length > 0 && (
@@ -184,13 +208,19 @@ export function ReceiptReview({
           </select>
         </Field>
       </section>
-      <section className="scan-card" aria-labelledby="scan-items-title">
+      <section
+        className="scan-card scan-items-card"
+        aria-labelledby="scan-items-title"
+      >
         <div className="scan-section-title">
           <ReceiptText size={18} />
-          <h3 id="scan-items-title">Rincian item ({draft.items.length})</h3>
+          <h3 id="scan-items-title">
+            Rincian item{" "}
+            <span className="scan-item-count">{draft.items.length}</span>
+          </h3>
           <button
             type="button"
-            className="text-button"
+            className="text-button scan-add-item"
             disabled={draft.items.length >= 50}
             onClick={() =>
               onChange({
@@ -216,7 +246,6 @@ export function ReceiptReview({
           {draft.items.map((item, index) => (
             <li key={item.id}>
               <div className="scan-item-heading">
-                <span className="scan-item-number">{index + 1}</span>
                 <label className="scan-item-name">
                   <span className="sr-only">Nama item {index + 1}</span>
                   <Input
@@ -231,7 +260,7 @@ export function ReceiptReview({
                 </label>
                 <button
                   type="button"
-                  className="icon-button"
+                  className="icon-button scan-item-remove"
                   aria-label={`Hapus item ${index + 1}`}
                   onClick={() =>
                     onChange({
@@ -253,7 +282,11 @@ export function ReceiptReview({
               )}
               <div className="scan-item-values">
                 <Field
-                  label={`Jumlah item ${index + 1}`}
+                  label={
+                    <>
+                      Jumlah<span className="sr-only"> item {index + 1}</span>
+                    </>
+                  }
                   name={`items.${index}.quantity`}
                   error={errors[`items.${index}.quantity`]}
                 >
@@ -268,31 +301,30 @@ export function ReceiptReview({
                   />
                 </Field>
                 <Field
-                  label={`Harga satuan item ${index + 1}`}
+                  label={
+                    <>
+                      Harga satuan
+                      <span className="sr-only"> item {index + 1}</span>
+                    </>
+                  }
                   name={`items.${index}.priceIdr`}
                   error={errors[`items.${index}.priceIdr`]}
                 >
-                  <Input
-                    {...fieldProps(`items.${index}.priceIdr`)}
-                    inputMode="numeric"
-                    value={item.priceIdr}
-                    maxLength={12}
-                    placeholder="Rupiah"
-                    onChange={(event) =>
-                      updateItem(index, "priceIdr", event.target.value)
-                    }
-                  />
+                  <div className="scan-item-price">
+                    <span aria-hidden="true">Rp</span>
+                    <Input
+                      {...fieldProps(`items.${index}.priceIdr`)}
+                      inputMode="numeric"
+                      value={item.priceIdr}
+                      maxLength={12}
+                      placeholder="0"
+                      onChange={(event) =>
+                        updateItem(index, "priceIdr", event.target.value)
+                      }
+                    />
+                  </div>
                 </Field>
               </div>
-              <span className="scan-item-total">
-                Total item{" "}
-                <MoneyDisplay
-                  amountIdr={(
-                    previewInteger(item.quantity) *
-                    previewInteger(item.priceIdr)
-                  ).toString()}
-                />
-              </span>
             </li>
           ))}
         </ol>

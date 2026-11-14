@@ -3,6 +3,7 @@
 import { useState, type ReactNode } from "react";
 import { Eye, EyeOff, LockKeyhole } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { autofillHydrationProps } from "./browser-autofill";
 
 export function AuthPasswordField({
   id,
@@ -32,6 +33,7 @@ export function AuthPasswordField({
       <div className="input-wrap">
         <LockKeyhole size={19} aria-hidden="true" />
         <Input
+          {...autofillHydrationProps}
           id={id}
           type={visible ? "text" : "password"}
           autoComplete="off"

@@ -1,6 +1,6 @@
 /* Public assets only. Bump VERSION whenever a listed file or Spline export changes,
    even when its URL stays the same. Keep SCENE in sync with spline-mascot.tsx. */
-const VERSION = "v1";
+const VERSION = "v2";
 const PREFIX = "cashly-public-assets-";
 const CACHE = `${PREFIX}${VERSION}`;
 const SCENE = "https://prod.spline.design/R4tRoaLYG0dA8fQD/scene.splinecode";
@@ -20,6 +20,14 @@ const paths = new Set(
   ASSETS.map((asset) => new URL(asset, self.location.origin).pathname),
 );
 const pending = new Map();
+
+function assetCredentials(url) {
+  // A private dev tunnel authenticates these public files with its own cookie.
+  // Keep that browser-managed session locally; never send cookies to the CDN.
+  return new URL(url, self.location.origin).origin === self.location.origin
+    ? "same-origin"
+    : "omit";
+}
 
 function publicImage(url) {
   return (
@@ -74,7 +82,7 @@ async function assetResponse(request) {
       const timeout = setTimeout(() => controller.abort(), 15000);
       try {
         const response = await fetch(request, {
-          credentials: "omit",
+          credentials: assetCredentials(request.url),
           cache: "no-cache",
           signal: controller.signal,
         });
@@ -151,7 +159,10 @@ self.addEventListener("message", (event) => {
           return allowed(url)
             ? [
                 assetResponse(
-                  new Request(url, { mode: "cors", credentials: "omit" }),
+                  new Request(url, {
+                    mode: "cors",
+                    credentials: assetCredentials(url.href),
+                  }),
                 ),
               ]
             : [];
