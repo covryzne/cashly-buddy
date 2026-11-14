@@ -1,36 +1,129 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Cashly Buddy Frontend
 
-## Getting Started
+Frontend Cashly menggunakan Next.js App Router, TypeScript, dan Tailwind CSS.
+Tahap awal berfokus pada prototipe frontend dengan data fiktif. Requirement
+proyek tersedia di `../specs/README.md`.
 
-First, run the development server:
+## Menjalankan proyek
 
-```bash
+Jalankan perintah dari folder `cashly-buddy-frontend`:
+
+```sh
+npm ci
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Buka http://localhost:3000: aplikasi mengarah ke `/login`. Pilih **Isi data contoh**,
+lalu **Masuk ke demo** untuk membuka `/beranda`. Acuan desain Beranda:
+`public/assets/cashly_beranda_varian_b_floating_cards/`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Struktur folder
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```text
+src/
+  app/                     # Routing, layout, metadata, dan global CSS
+  components/
+    ui/                    # Primitive UI reusable; tempat shadcn nantinya
+    shared/                # Komponen lintas fitur: navigasi, state screens
+    finance/               # Komponen pengeluaran, form, dan grafik
+    gamification/          # Komponen mascot, streak, XP, dan misi
+  features/
+    auth/                  # Komposisi, hooks, schema, dan adapter fitur auth
+    expenses/              # Logika tampilan fitur pengeluaran
+    reports/               # Logika tampilan fitur laporan
+    gamification/          # Logika tampilan fitur gamification
+    home/                  # Komposisi Beranda dan interaksi pratinjau
+  lib/
+    api/                   # Tempat transport API saat tahap integrasi
+    format/                # Utilitas format Rupiah dan tanggal bersama
+    theme/                 # Utilitas tema
+  mocks/
+    fixtures/              # Dummy data fiktif untuk prototipe frontend
+  styles/                  # Styles bersama dan semantic tokens nantinya
+public/
+  assets/                  # Referensi desain dan UI kit yang disediakan
+```
 
-## Learn More
+Folder yang belum diimplementasikan berisi `.gitkeep` agar tersimpan di Git.
+Konfigurasi proyek, environment, dan `public/` berada di root, sejajar dengan `src/`.
 
-To learn more about Next.js, take a look at the following resources:
+## Login demo
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Form email/kata sandi dengan validasi schema Zod dan kontrol tampilkan kata sandi.
+- Hanya menerima akun fiktif dari `src/mocks/fixtures/auth.ts`; tombol Isi data contoh
+  mengisi form. Data tidak dikirim ke server atau disimpan di browser.
+- Ini alur pratinjau, bukan autentikasi atau pelindung route. `/beranda` dapat
+  dibuka langsung. Signup dan pemulihan kata sandi masih berupa informasi.
+- Input, tombol, dialog, dan tombol tema dipakai kembali dari komponen bersama.
+- Layar login dirancang dari token/UI kit Cashly, tanpa aset desain layar baru.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Cakupan Beranda
 
-## Deploy on Vercel
+- Ringkasan pengeluaran, kategori floating cards, mascot Spline 3D, streak,
+  misi, dan transaksi terbaru; nominal dan progres merupakan fixture fiktif.
+- Detail kategori dan transaksi dapat ditinjau lewat dialog. Menu lain serta
+  pencatatan pengeluaran menampilkan informasi tahap berikutnya.
+- Tema sistem/terang/gelap, navigasi mobile dengan safe area, sidebar desktop,
+  fallback mascot, dukungan reduced motion, dan indikator offline.
+- Manifest dan ikon aplikasi Mochi tersedia. Tidak ada service worker, cache
+  data keuangan, offline writes, koneksi backend, atau pemberian reward.
+- Ilustrasi statis Mochi terbaru memakai referensi `public/mascot/mochi-reference (2).png`
+  (mahkota, jubah dan koin), dengan latar dihapus menggunakan imagegen bawaan.
+  Master alpha: `public/mascot/mochi-crown-transparent.png`; versi WebP untuk login,
+  quick-add, scan dan fallback Beranda: `public/mascot/mochi-crown-transparent.webp`.
+  Beranda tetap memakai scene Spline pengguna. Satu scene ini belum
+  merepresentasikan keempat tahap evolusi.
+- Ikon aplikasi memakai desain `stitch_cashly_icon_app/screen.png` yang disetujui
+  pengguna: PNG 192/512, maskable 512, Apple touch 180, serta favicon PNG/ICO.
+  Jalankan `npm run icons:generate` untuk menghasilkan ulang dari salinan sumber
+  di `scripts/assets/cashly-app-icon.png`. Validasi install di iPhone/Android
+  fisik dan HTTPS deployment belum dilakukan.
+- Ikon iPhone juga tersedia di `/apple-touch-icon.png` untuk fallback Safari.
+  Akses aset lewat tunnel harus dapat dilakukan tanpa login; pratinjau Share Sheet
+  dapat memiliki bingkai sistem yang berbeda dari ikon di Home Screen.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Ringkasan perubahan desain dan batas verifikasi: `docs/home-preview.md`.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Login dan `/register` memakai `AuthShell` bersama. Mobile menampilkan cerita
+Mochi lengkap dengan dua floating notes dan ikon header baru. Form pendaftaran
+memvalidasi nama, email, kata sandi dan konfirmasi secara lokal, lalu menghapus
+input dan menawarkan demo. Tidak ada akun yang dibuat atau kredensial disimpan.
+Tombol Google pada kedua form membuka penjelasan pratinjau; belum terhubung OAuth.
+Aset header dan sumber logo Google tercatat di `public/branding/README.md`.
+
+Link Lupa kata sandi membuka `/forgot-password`, dengan validasi email, data
+contoh dan konfirmasi simulasi. Tidak ada email dikirim atau kata sandi diubah;
+input dibersihkan setelah validasi dan dapat diisi ulang.
+
+## Aturan penempatan kode
+
+- Alias `@/` mengarah ke `src/`, misalnya `@/components/shared/AppShell`.
+- `app/` menyusun halaman dari komponen; gunakan Server Components secara
+  default dan Client Components untuk interaksi atau browser APIs.
+- Cari dan gunakan kembali komponen yang ada sebelum menambah komponen baru.
+  Simpan primitive di `components/ui`, komponen lintas fitur di `shared`, dan
+  widget domain di `finance` atau `gamification`.
+- Simpan hooks, schema, adapter data, dan logika tampilan khusus fitur di
+  `features/<fitur>`. Hook yang hanya dipakai satu fitur tetap di fitur tersebut.
+- Pusatkan format uang dan tanggal di `lib/format`; gunakan semantic tokens
+  untuk konsistensi light/dark saat UI mulai diimplementasikan.
+- Letakkan data prototipe di `mocks/fixtures` dan pisahkan dari komponen
+  presentasi. Data harus fiktif dan jelas sebagai demo, bukan data pengguna.
+- `public/assets` menjadi referensi implementasi, bukan kode yang langsung
+  disalin tanpa review. Aset publik diakses lewat `/assets/...`.
+
+Koneksi backend, autentikasi nyata, database, dan aturan bisnis yang otoritatif
+belum diimplementasikan pada tahap struktur ini.
+
+## Verifikasi
+
+```sh
+npm run lint
+npx tsc --noEmit
+npm run build
+npm run test:e2e
+```
+
+Tes E2E memerlukan Google Chrome lokal. Jalankan build sebelum E2E karena
+Playwright menjalankan production server di port 3127. Screenshot setiap
+viewport tersimpan di `test-results/` (diabaikan Git).

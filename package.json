@@ -6,20 +6,34 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "icons:generate": "node scripts/generate-pwa-icons.mjs",
+    "test:e2e": "playwright test",
+    "test:dev-styles": "node scripts/check-date-time-dev.mjs"
   },
   "dependencies": {
+    "@base-ui/react": "1.9.0",
+    "@splinetool/react-spline": "^4.2.0",
+    "@splinetool/runtime": "^2.0.183",
+    "date-fns": "^4.4.0",
+    "lucide-react": "^1.72.0",
     "next": "16.4.6",
     "react": "19.3.0",
-    "react-dom": "19.3.0"
+    "react-datepicker": "^9.1.0",
+    "react-day-picker": "9.14.0",
+    "react-dom": "19.3.0",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
+    "@playwright/test": "^1.65.0",
     "@tailwindcss/turbopack": "4.3.3",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.4.6",
+    "sharp": "0.35.5",
     "tailwindcss": "4.3.3",
     "typescript": "^5"
   }

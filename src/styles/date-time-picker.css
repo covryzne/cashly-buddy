@@ -1,0 +1,238 @@
+.button-outline {
+  background: var(--surface);
+  color: var(--foreground);
+  border: 1px solid var(--border);
+  box-shadow: none;
+}
+.button-outline:hover {
+  background: var(--subtle);
+  border-color: var(--primary);
+}
+.cashly-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.cashly-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 0;
+}
+.cashly-field-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 500;
+}
+.cashly-field-group.date-time-picker {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 128px;
+  width: 100%;
+  max-width: 320px;
+  gap: 12px;
+  margin: 16px auto 0;
+}
+.date-time-picker .date-time-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 7px;
+  width: 100%;
+  min-height: 44px;
+  padding: 9px 12px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 500;
+}
+.date-time-trigger > svg {
+  flex-shrink: 0;
+  color: var(--primary-text);
+}
+.date-time-trigger > span {
+  flex: 1;
+  text-align: left;
+}
+.date-time-picker .date-time-input {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 9px 10px;
+  appearance: none;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 16px;
+  font-variant-numeric: tabular-nums;
+}
+.date-time-input::-webkit-calendar-picker-indicator {
+  display: none;
+  appearance: none;
+}
+.cashly-popover-positioner {
+  z-index: 100;
+  isolation: isolate;
+}
+.cashly-popover-content {
+  width: max-content;
+  max-width: min(calc(100vw - 24px), var(--available-width));
+  max-height: min(420px, var(--available-height));
+  overflow: auto;
+  padding: 10px;
+  background: var(--surface);
+  color: var(--foreground);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  box-shadow:
+    0 16px 45px var(--primary-shadow),
+    var(--float-shadow);
+  outline: none;
+}
+.cashly-popover-content.date-time-popover {
+  padding: 0;
+  overflow: hidden;
+  border-radius: 12px;
+}
+.cashly-calendar-ui.rdp-root {
+  --rdp-accent-color: var(--primary);
+  --rdp-accent-background-color: var(--primary-soft);
+  --rdp-day-width: 36px;
+  --rdp-day-height: 36px;
+  --rdp-day_button-width: 36px;
+  --rdp-day_button-height: 36px;
+  --rdp-day_button-border-radius: 8px;
+  --rdp-selected-border: 1px solid var(--primary);
+  --rdp-today-color: var(--primary-text);
+  --rdp-nav_button-width: 32px;
+  --rdp-nav_button-height: 32px;
+  --rdp-nav-height: 36px;
+  --rdp-outside-opacity: 1;
+  width: 276px;
+  padding: 12px;
+  font-family: var(--font-jakarta), Arial, sans-serif;
+  font-size: 13px;
+  background: transparent;
+  color: var(--foreground);
+}
+.cashly-calendar-ui .rdp-months {
+  position: relative;
+  gap: 0;
+}
+.cashly-calendar-ui .rdp-month {
+  width: 100%;
+}
+.cashly-calendar-ui .rdp-nav {
+  left: 0;
+  right: 0;
+  top: 0;
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  pointer-events: none;
+}
+.cashly-calendar-ui .rdp-button_previous,
+.cashly-calendar-ui .rdp-button_next {
+  pointer-events: auto;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  color: var(--muted);
+  background: transparent;
+}
+.cashly-calendar-ui .rdp-button_previous:hover,
+.cashly-calendar-ui .rdp-button_next:hover {
+  background: var(--primary-soft);
+  color: var(--primary-text);
+}
+.cashly-calendar-ui .rdp-month_caption {
+  min-height: 36px;
+  justify-content: center;
+  padding-inline: 34px;
+  margin-bottom: 4px;
+}
+.cashly-calendar-ui .rdp-dropdowns {
+  gap: 5px;
+  align-items: center;
+}
+.cashly-calendar-ui .rdp-dropdown_root {
+  border: 0;
+  border-radius: 6px;
+  padding: 4px 3px;
+  min-height: 32px;
+  background: transparent;
+  color: var(--foreground);
+}
+.cashly-calendar-ui .rdp-dropdown {
+  font: inherit;
+  font-size: 16px;
+  color: var(--foreground);
+  background: var(--surface);
+}
+.cashly-calendar-ui .rdp-caption_label {
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 650;
+  line-height: 1.8;
+}
+.cashly-calendar-ui .rdp-caption_label svg {
+  width: 12px;
+  height: 12px;
+}
+.cashly-calendar-ui .rdp-chevron {
+  fill: none;
+}
+.cashly-calendar-ui .rdp-month_grid {
+  width: 100%;
+  border-collapse: collapse;
+}
+.cashly-calendar-ui .rdp-weekday {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--muted);
+  opacity: 1;
+  padding: 8px 0;
+}
+.cashly-calendar-ui .rdp-day_button {
+  border: 1px solid transparent;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--foreground);
+}
+.cashly-calendar-ui .rdp-day_button:hover {
+  color: var(--primary-text);
+  background: var(--primary-soft);
+}
+.cashly-calendar-ui .rdp-today .rdp-day_button {
+  color: var(--primary-text);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  font-weight: 750;
+}
+.cashly-calendar-ui .rdp-outside .rdp-day_button {
+  color: var(--muted);
+}
+.cashly-calendar-ui .rdp-selected .rdp-day_button {
+  color: var(--on-primary);
+  background: var(--primary);
+  border-color: var(--primary);
+  font-weight: 750;
+}
+.cashly-calendar-ui .rdp-day_button:focus-visible {
+  outline: 2px solid var(--primary-text);
+  outline-offset: -3px;
+}
+.cashly-calendar-ui .rdp-selected .rdp-day_button:focus-visible {
+  outline-color: var(--on-primary);
+}
+@media (max-width: 374px) {
+  .cashly-field-group.date-time-picker {
+    grid-template-columns: minmax(0, 1fr) 128px;
+    gap: 10px;
+  }
+  .date-time-picker .date-time-trigger {
+    padding-inline: 8px;
+    font-size: 12px;
+  }
+}

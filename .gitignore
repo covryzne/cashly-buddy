@@ -12,6 +12,8 @@
 
 # testing
 /coverage
+/test-results/
+/playwright-report/
 
 # next.js
 /.next/
@@ -42,3 +44,8 @@ next-env.d.ts
 
 # Skills
 .agents
+.21st
+docs/*
+
+# Assets
+public/assets/*

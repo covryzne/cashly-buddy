@@ -1,0 +1,89 @@
+﻿:root {
+  color-scheme: light;
+  --background: #faf9fe;
+  --surface: #fff;
+  --subtle: #f3f0fa;
+  --foreground: #241e36;
+  --muted: #625b70;
+  --border: #e5e0ef;
+  --primary: #7357e8;
+  --primary-hover: #6446d3;
+  --on-primary: #fff;
+  --primary-text: #6040c9;
+  --primary-soft: #ede7ff;
+  --peach: #ffe0d9;
+  --peach-ink: #934b39;
+  --mint: #d6f5e5;
+  --butter: #fff0c9;
+  --success: #1e7450;
+  --warning: #935915;
+  --streak: #bc5b20;
+  --danger: #b13a51;
+  --companion-top: #f0eaff;
+  --companion-bottom: #fbf9ff;
+  --companion-border: #eae3f7;
+  --companion-glow: #ffe7e4;
+  --primary-shadow: #7357e81a;
+  --card-shadow: 0 3px 15px #241e3605;
+  --float-shadow: 0 6px 20px #241e3610;
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --background: #12101a;
+  --surface: #1e1a28;
+  --subtle: #292334;
+  --foreground: #f6f3fc;
+  --muted: #c4bdd0;
+  --border: #443a54;
+  --primary: #b19bff;
+  --primary-hover: #c5b4ff;
+  --on-primary: #211634;
+  --primary-text: #c9b4ff;
+  --primary-soft: #382b53;
+  --peach: #5c3336;
+  --peach-ink: #ffc4b6;
+  --mint: #245b4b;
+  --butter: #564525;
+  --success: #8de1b6;
+  --warning: #f6c77e;
+  --streak: #ffaf6a;
+  --danger: #ff9aac;
+  --companion-top: #2a203e;
+  --companion-bottom: #201b2c;
+  --companion-border: #443453;
+  --companion-glow: #422b39;
+  --primary-shadow: #00000024;
+  --card-shadow: 0 3px 15px #00000010;
+  --float-shadow: 0 6px 20px #00000025;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]):not([data-theme="dark"]) {
+    color-scheme: dark;
+    --background: #12101a;
+    --surface: #1e1a28;
+    --subtle: #292334;
+    --foreground: #f6f3fc;
+    --muted: #c4bdd0;
+    --border: #443a54;
+    --primary: #b19bff;
+    --primary-hover: #c5b4ff;
+    --on-primary: #211634;
+    --primary-text: #c9b4ff;
+    --primary-soft: #382b53;
+    --peach: #5c3336;
+    --peach-ink: #ffc4b6;
+    --mint: #245b4b;
+    --butter: #564525;
+    --success: #8de1b6;
+    --warning: #f6c77e;
+    --streak: #ffaf6a;
+    --danger: #ff9aac;
+    --companion-top: #2a203e;
+    --companion-bottom: #201b2c;
+    --companion-border: #443453;
+    --companion-glow: #422b39;
+    --primary-shadow: #00000024;
+    --card-shadow: 0 3px 15px #00000010;
+    --float-shadow: 0 6px 20px #00000025;
+  }
+}
