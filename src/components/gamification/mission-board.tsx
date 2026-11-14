@@ -43,8 +43,7 @@ export function MissionBoard({ onOpenReview }: { onOpenReview: () => void }) {
             </span>
           </div>
           <p>
-            Pengeluaranmu sudah tercatat di data demo. Check-in hari ini juga
-            sudah selesai.
+            Pengeluaranmu sudah tercatat. Check-in hari ini juga sudah selesai.
           </p>
           <div className="mission-detail-foot">
             <Flame size={14} />

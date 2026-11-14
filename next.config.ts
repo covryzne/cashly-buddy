@@ -1,19 +1,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Tailwind uses postcss.config.mjs; Next handles CSS imports natively.
   cacheComponents: true,
   partialPrefetching: true,
   async redirects() {
     return [{ source: "/", destination: "/login", permanent: false }];
-  },
-  turbopack: {
-    rules: {
-      "*.css": {
-        loaders: ["@tailwindcss/turbopack"],
-        as: "*.css",
-      },
-    },
   },
 };
 

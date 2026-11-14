@@ -1,7 +1,7 @@
 import type { ReceiptDraft } from "@/features/scan/receipt-schema";
 
 // Demo details only, including the authorized post-capture prototype flow.
-// Always label these as dummy data, never as actual extraction output.
+// Presentation copy follows ADR-0024; this remains fixture data, not OCR output.
 export function exampleReceipt(): ReceiptDraft {
   return {
     merchant: "Indomaret Point",

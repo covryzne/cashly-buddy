@@ -87,9 +87,9 @@ for (const width of [360, 390, 1280]) {
       const time = page.getByLabel("Waktu (WIB)", { exact: true });
       await expect(time).toHaveAttribute("step", "1");
       await time.fill("09:45:30");
-      await page.getByRole("button", { name: /Simulasikan simpan/ }).click();
+      await page.getByRole("button", { name: /Simpan pengeluaran/ }).click();
       await expect(
-        page.getByRole("dialog", { name: "Konfirmasi demo" }),
+        page.getByRole("dialog", { name: "Konfirmasi pengeluaran" }),
       ).toBeVisible();
       await expect(page.locator(".scan-success-date")).toHaveText(
         "29 Feb 2028, 09.45.30 WIB",
@@ -159,16 +159,16 @@ test("Klik di luar kalender tetap di review; waktu kosong menampilkan validasi",
     page.getByRole("dialog", { name: "Review struk", exact: true }),
   ).toBeVisible();
   await time.fill("");
-  await page.getByRole("button", { name: /Simulasikan simpan/ }).click();
+  await page.getByRole("button", { name: /Simpan pengeluaran/ }).click();
   await expect(time).toHaveAttribute("aria-invalid", "true");
   await expect(time).toBeFocused();
   await expect(
     page.getByText("Pilih waktu yang valid.", { exact: true }),
   ).toBeVisible();
   await time.fill("23:59");
-  await page.getByRole("button", { name: /Simulasikan simpan/ }).click();
+  await page.getByRole("button", { name: /Simpan pengeluaran/ }).click();
   await expect(
-    page.getByRole("dialog", { name: "Konfirmasi demo", exact: true }),
+    page.getByRole("dialog", { name: "Konfirmasi pengeluaran", exact: true }),
   ).toBeVisible();
   await expect(page.locator(".scan-success-date")).toContainText("23.59 WIB");
 });

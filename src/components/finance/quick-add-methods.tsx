@@ -22,7 +22,7 @@ const methods = [
     description: "Isi nominal, kategori, dan catatan sendiri.",
     icon: NotebookPen,
     tone: "manual",
-    status: "Pratinjau",
+    status: "Segera hadir",
   },
 ];
 
@@ -70,9 +70,6 @@ export function QuickAddMethods({
           Satu hari dihitung satu check-in.
         </p>
       </div>
-      <p className="quick-add-demo">
-        Prototipe · Belum ada data yang disimpan.
-      </p>
       <Button variant="ghost" className="quick-add-cancel" onClick={onClose}>
         Batal
       </Button>

@@ -1,0 +1,10 @@
+.asset-loader {
+  display: inline-grid;
+  place-items: center;
+  flex-shrink: 0;
+  line-height: 0;
+  vertical-align: middle;
+}
+.mascot-loading .asset-loader {
+  color: var(--primary-text);
+}

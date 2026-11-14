@@ -7,20 +7,26 @@ import {
   CheckCircle2,
   ImagePlus,
   Lightbulb,
-  LoaderCircle,
+  LockKeyhole,
   ReceiptText,
   ScanLine,
   ShieldCheck,
   Sparkles,
+  SquarePen,
   Store,
   Zap,
   ZapOff,
 } from "lucide-react";
 import { Dialog } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { AssetLoader } from "@/components/shared/asset-loader";
 import { MoneyDisplay } from "@/components/finance/money-display";
 import { ReceiptReview } from "@/components/finance/receipt-review";
 import { ReceiptScanSuccess } from "@/components/finance/receipt-scan-success";
+import {
+  ReceiptAnalysis,
+  RECEIPT_ANALYSIS_DURATION_MS,
+} from "@/components/finance/receipt-analysis";
 import { exampleReceipt } from "@/mocks/fixtures/receipt";
 import {
   blankReceipt,
@@ -30,8 +36,16 @@ import {
   type ReceiptPhoto,
 } from "./receipt-schema";
 import { captureReceipt, useReceiptCamera } from "./use-receipt-camera";
+import { canSkipCameraIntro, hasCameraApproval } from "./camera-permission";
 
-type Step = "permission" | "camera" | "review" | "success" | "help";
+type Step =
+  | "checking"
+  | "permission"
+  | "camera"
+  | "processing"
+  | "review"
+  | "success"
+  | "help";
 
 export function ScanReceiptFlow({
   onBack,
@@ -41,11 +55,14 @@ export function ScanReceiptFlow({
   onClose: () => void;
 }) {
   const camera = useReceiptCamera();
-  const [step, setStep] = useState<Step>("permission");
+  const requestCamera = camera.request;
+  const [step, setStep] = useState<Step>("checking");
+  const enteredWithoutIntro = useRef(false);
   const [photo, setPhoto] = useState<ReceiptPhoto | null>(null);
   const photoRef = useRef<ReceiptPhoto | null>(null);
   const objectUrls = useRef(new Set<string>());
   const [draft, setDraft] = useState<ReceiptDraft>(blankReceipt);
+  const [manualReview, setManualReview] = useState(false);
   const [confirmed, setConfirmed] = useState<ReceiptDraft | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [message, setMessage] = useState("");
@@ -72,6 +89,20 @@ export function ScanReceiptFlow({
     };
   }, []);
   useEffect(() => {
+    let cancelled = false;
+    void canSkipCameraIntro().then((skip) => {
+      if (cancelled || !alive.current) return;
+      if (skip && !document.hidden) {
+        enteredWithoutIntro.current = true;
+        setStep("camera");
+        void requestCamera();
+      } else setStep("permission");
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [requestCamera]);
+  useEffect(() => {
     const video = videoRef.current;
     if (step !== "camera" || !video || !camera.stream) return;
     video.srcObject = camera.stream;
@@ -89,6 +120,17 @@ export function ScanReceiptFlow({
         ?.focus({ preventScroll: true });
     });
     return () => cancelAnimationFrame(frame);
+  }, [step]);
+  useEffect(() => {
+    if (step !== "processing") return;
+    const requestId = job.current.version;
+    const timer = window.setTimeout(() => {
+      if (alive.current && requestId === job.current.version) {
+        job.current.version++;
+        setStep("review");
+      }
+    }, RECEIPT_ANALYSIS_DURATION_MS);
+    return () => window.clearTimeout(timer);
   }, [step]);
   const createUrl = (blob: Blob) => {
     const url = URL.createObjectURL(blob);
@@ -122,20 +164,47 @@ export function ScanReceiptFlow({
     void camera.request();
   };
   const goBack = () => {
-    if (step === "permission") {
+    if (step === "checking" || step === "permission") {
       camera.stop();
       onBack();
-    } else if (step === "camera") go(cameraParent.current);
-    else if (step === "help") openCamera(cameraParent.current);
+    } else if (step === "processing") cancelAnalysis();
+    else if (step === "camera") {
+      if (
+        cameraParent.current === "permission" &&
+        (enteredWithoutIntro.current || hasCameraApproval())
+      ) {
+        camera.stop();
+        onBack();
+      } else go(cameraParent.current);
+    } else if (step === "help") openCamera(cameraParent.current);
     else if (step === "success") go("review");
     else openCamera("review");
+  };
+  const cancelAnalysis = () => {
+    if (photoRef.current?.url) revokeUrl(photoRef.current.url);
+    photoRef.current = null;
+    setPhoto(null);
+    setDraft(blankReceipt());
+    setManualReview(false);
+    setErrors({});
+    if (enteredWithoutIntro.current || hasCameraApproval()) {
+      camera.stop();
+      onBack();
+    } else go("permission");
+  };
+  const openManualReview = () => {
+    setDraft(blankReceipt());
+    setManualReview(true);
+    setErrors({});
+    go("review");
   };
   const chooseExample = () => {
     camera.stop();
     replacePhoto({ source: "example", url: null });
     setDraft(exampleReceipt());
+    setManualReview(false);
     setErrors({});
-    go("review");
+    go("processing");
   };
   const openGallery = () => {
     job.current.version++;
@@ -155,8 +224,9 @@ export function ScanReceiptFlow({
       if (!alive.current || requestId !== job.current.version) return;
       replacePhoto({ source: "camera", url: createUrl(blob) });
       setDraft(exampleReceipt());
+      setManualReview(false);
       setErrors({});
-      go("review");
+      go("processing");
     } catch (error) {
       if (alive.current && requestId === job.current.version)
         setMessage(
@@ -198,6 +268,7 @@ export function ScanReceiptFlow({
       }
       replacePhoto({ source: "gallery", url });
       setDraft(blankReceipt());
+      setManualReview(false);
       setErrors({});
       go("review");
     } catch (error) {
@@ -230,16 +301,20 @@ export function ScanReceiptFlow({
   };
   const total = receiptAmounts(draft).total;
   const title = {
+    checking: "Scan struk",
     permission: "Scan struk",
     camera: "AI OCR Scanner",
+    processing: "Analisis struk",
     review: "Review struk",
-    success: "Konfirmasi demo",
+    success: "Konfirmasi pengeluaran",
     help: "Panduan scan",
   }[step];
   return (
     <Dialog
       title={title}
-      variant={step === "permission" ? "sheet" : "screen"}
+      variant={
+        step === "permission" || step === "checking" ? "sheet" : "screen"
+      }
       className={`scan-flow scan-flow-${step} ${camera.status === "ready" ? "scan-camera-running" : ""}`}
       onBack={goBack}
       onClose={onClose}
@@ -248,7 +323,7 @@ export function ScanReceiptFlow({
         step === "camera" ? (
           <span className="scan-camera-status">
             {camera.status === "ready"
-              ? "Kamera aktif · Demo"
+              ? "Kamera aktif"
               : camera.status === "requesting"
                 ? "Menunggu izin browser"
                 : "Kamera belum aktif"}
@@ -302,16 +377,31 @@ export function ScanReceiptFlow({
         ) : undefined
       }
       footer={
-        step === "review" ? (
+        step === "processing" ? (
+          <div className="analysis-actions">
+            <div>
+              <Button variant="secondary" onClick={openManualReview}>
+                <SquarePen size={17} />
+                Ketik manual saja
+              </Button>
+              <Button variant="secondary" onClick={cancelAnalysis}>
+                Batal
+              </Button>
+            </div>
+            <small>
+              <LockKeyhole size={13} />
+              Foto tetap di perangkatmu
+            </small>
+          </div>
+        ) : step === "review" ? (
           <div className="scan-review-actions">
             <Button type="submit" form={formId}>
               <ShieldCheck size={18} />
-              Simulasikan simpan{" "}
+              Simpan pengeluaran{" "}
               <MoneyDisplay
                 amountIdr={(total > BigInt(0) ? total : BigInt(0)).toString()}
               />
             </Button>
-            <small>Belum disimpan ke buku kas.</small>
           </div>
         ) : step === "success" ? (
           <div className="scan-success-actions">
@@ -339,16 +429,16 @@ export function ScanReceiptFlow({
               disabled={camera.status !== "ready" || !videoReady || busy}
               onClick={() => void takePhoto()}
             >
-              <span className="scan-shutter-inner">
+              <div className="scan-shutter-inner">
                 {busy ? (
-                  <LoaderCircle className="scan-spin" size={28} />
+                  <AssetLoader size={28} />
                 ) : (
                   <span className="scan-capture-glyph">
                     <ScanLine size={30} />
                     <ReceiptText size={16} />
                   </span>
                 )}
-              </span>
+              </div>
             </button>
             <div aria-hidden="true" />
           </div>
@@ -373,11 +463,20 @@ export function ScanReceiptFlow({
           {message}
         </p>
       )}
+      {step === "processing" && (
+        <ReceiptAnalysis example={photo?.source === "example"} />
+      )}
+      {step === "checking" && (
+        <div className="scan-permission" role="status">
+          <AssetLoader />
+          <p>Menyiapkan kamera…</p>
+        </div>
+      )}
       {busy && step !== "camera" && (
-        <p className="scan-loading" role="status">
-          <LoaderCircle size={18} className="scan-spin" />
+        <div className="scan-loading" role="status">
+          <AssetLoader size={18} />
           Menyiapkan foto…
-        </p>
+        </div>
       )}
       {step === "permission" && (
         <div className="scan-permission">
@@ -414,10 +513,7 @@ export function ScanReceiptFlow({
           <Button variant="ghost" onClick={onBack}>
             Nanti saja
           </Button>
-          <small>
-            Durasi izin diatur oleh browser. Foto tetap di perangkat pada
-            prototipe ini.
-          </small>
+          <small>Durasi izin diatur oleh browser.</small>
         </div>
       )}
       {step === "camera" && (
@@ -449,7 +545,6 @@ export function ScanReceiptFlow({
                 <div className="scan-merchant-tag">
                   <Store size={14} />
                   <strong>Indomaret Point</strong>
-                  <small>Demo</small>
                 </div>
                 <div className="scan-total-tag">
                   <CheckCircle2 size={15} />
@@ -461,7 +556,7 @@ export function ScanReceiptFlow({
               <div className="scan-camera-placeholder">
                 {camera.status === "requesting" ? (
                   <>
-                    <LoaderCircle size={30} className="scan-spin" />
+                    <AssetLoader />
                     <p role="status">
                       Pilih Izinkan pada permintaan kamera browser.
                     </p>
@@ -510,6 +605,7 @@ export function ScanReceiptFlow({
         <ReceiptReview
           draft={draft}
           photo={photo}
+          manual={manualReview}
           errors={errors}
           formId={formId}
           onChange={(next) => {

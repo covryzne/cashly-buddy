@@ -5,7 +5,6 @@ import {
   Plus,
   ReceiptText,
   ShoppingBag,
-  Sparkles,
   Trash2,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -47,6 +46,7 @@ function Field({
 export function ReceiptReview({
   draft,
   photo,
+  manual = false,
   errors,
   formId,
   onChange,
@@ -55,6 +55,7 @@ export function ReceiptReview({
 }: {
   draft: ReceiptDraft;
   photo: ReceiptPhoto;
+  manual?: boolean;
   errors: Record<string, string>;
   formId: string;
   onChange: (draft: ReceiptDraft) => void;
@@ -108,18 +109,22 @@ export function ReceiptReview({
         )}
         <div>
           <span className="pill">
-            {photo.source === "example"
-              ? "Struk contoh"
-              : photo.source === "camera"
-                ? "Foto + rincian dummy"
-                : "Foto siap ditinjau"}
+            {manual
+              ? "Input manual"
+              : photo.source === "example"
+                ? "Struk contoh"
+                : photo.source === "camera"
+                  ? "Foto struk siap"
+                  : "Foto siap ditinjau"}
           </span>
           <p>
-            {photo.source === "example"
-              ? "Cek alur review memakai 4 item data dummy."
-              : photo.source === "camera"
-                ? "Foto berhasil diambil. Rincian memakai 4 item dummy untuk pratinjau alur."
-                : "Isi rincian sesuai foto strukmu. OCR belum terhubung pada prototipe ini."}
+            {manual
+              ? "Isi nama toko, item, dan nominal sendiri. Rincian tidak diisi otomatis."
+              : photo.source === "example"
+                ? "Periksa nama toko, nominal, dan rincian item sebelum melanjutkan."
+                : photo.source === "camera"
+                  ? "Foto berhasil diambil. Periksa dan sesuaikan rincian dengan strukmu."
+                  : "Lengkapi rincian sesuai foto strukmu."}
           </p>
         </div>
         <button type="button" className="text-button" onClick={onRetake}>
@@ -391,13 +396,6 @@ export function ReceiptReview({
           onTimeChange={(value) => update("occurredTime", value)}
         />
       </section>
-      <div className="scan-demo-notice">
-        <Sparkles size={18} />
-        <p>
-          Pratinjau frontend. Simulasi ini belum menyimpan pengeluaran atau
-          memberi XP dan streak.
-        </p>
-      </div>
     </form>
   );
 }

@@ -4,6 +4,11 @@ Frontend Cashly menggunakan Next.js App Router, TypeScript, dan Tailwind CSS.
 Tahap awal berfokus pada prototipe frontend dengan data fiktif. Requirement
 proyek tersedia di `../specs/README.md`.
 
+Copy UI utama mengikuti tampilan produk tanpa badge/peringatan simulasi, dummy,
+atau demo (ADR-0024). Penanda dan bantuan akun contoh tetap ada pada alur auth.
+Perubahan copy tidak menambah OCR, penyimpanan, atau reward; fixture dan batas
+implementasi yang dijelaskan di dokumen ini tetap berlaku.
+
 ## Menjalankan proyek
 
 Jalankan perintah dari folder `cashly-buddy-frontend`:
@@ -94,6 +99,25 @@ Aset header dan sumber logo Google tercatat di `public/branding/README.md`.
 Link Lupa kata sandi membuka `/forgot-password`, dengan validasi email, data
 contoh dan konfirmasi simulasi. Tidak ada email dikirim atau kata sandi diubah;
 input dibersihkan setelah validasi dan dapat diisi ulang.
+
+Setelah jepret atau memilih struk contoh, layar analisis struk menampilkan progres
+simulasi selama 2,4 detik sebelum review dummy. Ketik manual saja membuka draft
+kosong dengan foto tetap tersedia; Batal/Kembali membersihkan foto sementara dan
+kembali ke pengantar izin. Galeri tetap memakai review manual. Progres ini belum
+terhubung ke OCR atau upload foto. Progres OCR memakai lingkaran berpersentase tanpa bar linear. Loader aset
+(scene 3D, foto dan kamera) memakai Slide asli dari loading-dev melalui AssetLoader
+bersama, default 48px, dengan reduced motion bawaan library.
+`npm run test:dev-styles` memeriksa computed style date/time dan scan langsung
+di dev server; `CASHLY_DEV_URL` dapat menunjuk origin development lain.
+Tailwind diproses lewat `postcss.config.mjs` dengan `@tailwindcss/postcss`,
+tanpa rule loader Turbopack untuk semua CSS. Token dan stylesheet fitur diimpor
+langsung dari root layout agar tetap tersedia pada dev server setelah restart.
+
+Loader Mochi memakai Slide 28px. Circle OCR menampilkan persen saja, dengan
+diameter 112px (100px pada viewport pendek). Pengantar izin kamera dilewati jika
+izin browser sudah diberikan atau stream pernah berhasil dibuka. Hanya flag
+preferensi pengantar yang disimpan lokal; izin asli tetap ditentukan browser dan
+flag dibersihkan ketika akses ditolak/dicabut. Kamera tetap berhenti saat ditutup.
 
 ## Aturan penempatan kode
 

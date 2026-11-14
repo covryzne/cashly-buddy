@@ -1,5 +1,6 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { rememberCameraApproval } from "./camera-permission";
 
 type CameraState = {
   status: "idle" | "requesting" | "ready" | "error";
@@ -95,6 +96,7 @@ export function useReceiptCamera() {
         release(stream);
         throw new DOMException("No video", "NotFoundError");
       }
+      rememberCameraApproval(true);
       let supportsTorch = false;
       try {
         supportsTorch = Boolean(
@@ -130,6 +132,11 @@ export function useReceiptCamera() {
       });
     } catch (error) {
       if (alive.current && requestId === generation.current.version) {
+        if (
+          (error instanceof DOMException || error instanceof Error) &&
+          ["NotAllowedError", "SecurityError"].includes(error.name)
+        )
+          rememberCameraApproval(false);
         release(streamRef.current);
         streamRef.current = null;
         setState({ ...idle, status: "error", error: cameraError(error) });

@@ -1,4 +1,4 @@
-import { Clock3, ListChecks, MousePointer2, ShieldCheck } from "lucide-react";
+import { Clock3, ListChecks, MousePointer2 } from "lucide-react";
 
 export function FeaturePreview({ label }: { label: string }) {
   return (
@@ -13,8 +13,8 @@ export function FeaturePreview({ label }: { label: string }) {
         </div>
       </div>
       <p>
-        Fitur ini akan dibuat pada tahap berikutnya. Sambil menunggu, kamu bisa
-        menjelajahi data demo yang sudah tersedia.
+        Kami sedang menyiapkan fitur ini. Sambil menunggu, kamu bisa meninjau
+        catatan pengeluaranmu di Beranda.
       </p>
       <ul className="preview-options">
         <li>
@@ -32,10 +32,6 @@ export function FeaturePreview({ label }: { label: string }) {
           </span>
         </li>
       </ul>
-      <p className="preview-note">
-        <ShieldCheck size={18} />
-        Belum ada data yang disimpan atau dikirim ke server.
-      </p>
     </div>
   );
 }

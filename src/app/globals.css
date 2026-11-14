@@ -1,6 +1,4 @@
 ﻿@import "tailwindcss";
-@import "../styles/tokens.css";
-@import "../styles/scan.css";
 
 @theme inline {
   --color-background: var(--background);
@@ -1017,19 +1015,6 @@ svg {
   gap: 10px;
   color: var(--muted);
   font-size: 12px;
-}
-.mascot-spinner {
-  width: 24px;
-  height: 24px;
-  border: 2px solid var(--border);
-  border-top-color: var(--primary);
-  border-radius: 50%;
-  animation: mochi-spin 1s linear infinite;
-}
-@keyframes mochi-spin {
-  to {
-    transform: rotate(360deg);
-  }
 }
 /* Home polish: shared tokens, raised surfaces and expressive dialogs. */
 :root {

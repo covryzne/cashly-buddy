@@ -124,8 +124,7 @@ export function HomeDashboard() {
           {!online && (
             <p className="offline-banner" role="status">
               <WifiOff size={18} />
-              Kamu sedang offline. Ini pratinjau data demo; pengeluaran belum
-              bisa disimpan.
+              Kamu sedang offline. Periksa koneksi internetmu.
             </p>
           )}
           <div className="greeting-row">
@@ -274,10 +273,6 @@ export function HomeDashboard() {
               </div>
             </section>
           </div>
-          <p className="demo-note">
-            Prototipe Beranda · Seluruh nominal dan progres merupakan data
-            fiktif.
-          </p>
         </main>
       </div>
       {panel?.kind === "scan" && (
@@ -309,7 +304,6 @@ export function HomeDashboard() {
         >
           {panel.kind !== "add" && panel.kind !== "expense" && (
             <span className="pill dialog-demo">
-              Data demo ·{" "}
               {panel.kind === "missions"
                 ? data.period
                 : panel.kind === "weekly"

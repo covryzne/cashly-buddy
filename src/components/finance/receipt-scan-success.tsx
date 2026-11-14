@@ -31,18 +31,13 @@ export function ReceiptScanSuccess({ draft }: { draft: ReceiptDraft }) {
         </div>
         <span className="pill">
           <ShieldCheck size={14} />
-          Simulasi selesai
+          Selesai
         </span>
-        <h3>Catatanmu siap ditinjau!</h3>
+        <h3>Catatanmu siap!</h3>
         <p>
-          Ini pratinjau konfirmasi untuk pengeluaran{" "}
-          <MoneyDisplay amountIdr={amounts.total.toString()} />
+          Pengeluaran <MoneyDisplay amountIdr={amounts.total.toString()} />
           {draft.merchant ? ` di ${draft.merchant}` : ""}.
         </p>
-        <div className="scan-success-note">
-          Belum ada data yang disimpan. Progres Mochi, XP, dan streak tetap
-          mengikuti data demo.
-        </div>
       </section>
       <section
         className="scan-card"

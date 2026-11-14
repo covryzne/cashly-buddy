@@ -18,13 +18,19 @@ type CameraTestWindow = Window & {
   revokedUrls: string[];
   createdUrls: string[];
 };
-const openScan = async (page: Page) => {
+const openScan = async (page: Page, mode: "intro" | "camera" = "intro") => {
   await page.goto("/beranda");
   await page
     .locator(".expense-summary")
     .getByRole("button", { name: "Catat pengeluaran" })
     .click();
   await page.getByRole("button", { name: /Scan struk otomatis/ }).click();
+  if (mode === "camera") {
+    await expect(
+      page.getByRole("dialog", { name: "AI OCR Scanner", exact: true }),
+    ).toBeVisible();
+    return;
+  }
   await expect(
     page.getByRole("heading", { name: "Izinkan Akses Kamera" }),
   ).toBeVisible();
@@ -177,7 +183,7 @@ for (const width of [360, 390, 1280]) {
         dialog.getByLabel("Metode pembayaran (opsional)"),
       ).toHaveValue("QRIS");
       await expect(
-        dialog.getByRole("button", { name: /Simulasikan simpan/ }),
+        dialog.getByRole("button", { name: /Simpan pengeluaran/ }),
       ).toBeInViewport({ ratio: 1 });
       expect(
         await dialog.evaluate((node) => node.scrollWidth <= node.clientWidth),
@@ -210,18 +216,18 @@ for (const width of [360, 390, 1280]) {
       await dialog
         .getByRole("button", { name: "Hapus item 5", exact: true })
         .click();
-      await dialog.getByRole("button", { name: /Simulasikan simpan/ }).click();
+      await dialog.getByRole("button", { name: /Simpan pengeluaran/ }).click();
       await expect(
-        page.getByRole("dialog", { name: "Konfirmasi demo" }),
+        page.getByRole("dialog", { name: "Konfirmasi pengeluaran" }),
       ).toBeVisible();
       await expect(page.locator(".scan-success-hero")).toContainText(
         "Rp58.000",
       );
       await expect(
-        page.getByRole("heading", { name: "Catatanmu siap ditinjau!" }),
+        page.getByRole("heading", { name: "Catatanmu siap!" }),
       ).toBeInViewport({ ratio: 1 });
-      await expect(page.locator(".scan-success-note")).toContainText(
-        "Belum ada data yang disimpan",
+      await expect(page.locator(".scan-success-merchant .money")).toHaveText(
+        "−Rp58.000",
       );
       expect(
         (
@@ -235,7 +241,7 @@ for (const width of [360, 390, 1280]) {
       });
       await page.getByRole("button", { name: "Kembali", exact: true }).click();
       await expect(page.getByLabel("Harga satuan item 1")).toHaveValue("10000");
-      await page.getByRole("button", { name: /Simulasikan simpan/ }).click();
+      await page.getByRole("button", { name: /Simpan pengeluaran/ }).click();
       await page
         .getByRole("button", { name: "Kembali ke Beranda", exact: true })
         .click();
@@ -308,7 +314,6 @@ for (const width of [360, 390, 1280]) {
     await expect(page.locator(".scan-merchant-tag")).toContainText(
       "Indomaret Point",
     );
-    await expect(page.locator(".scan-merchant-tag")).toContainText("Demo");
     await expect(page.locator(".scan-total-tag")).toHaveText("Total: Rp47.500");
     await expect(
       page.getByRole("button", { name: "Tutup dialog" }),
@@ -330,12 +335,15 @@ for (const width of [360, 390, 1280]) {
       path: `test-results/scan-reference-match-${width}.png`,
     });
     await page.getByRole("button", { name: "Ambil foto struk" }).click();
+    await expect(
+      page.getByRole("dialog", { name: "Analisis struk", exact: true }),
+    ).toBeVisible();
     await expect(page.locator(".scan-review-total .money")).toHaveText(
       "Rp47.500",
     );
     await expect(page.locator(".scan-items > li")).toHaveCount(4);
     await expect(page.locator(".scan-photo-summary")).toContainText(
-      "Foto + rincian dummy",
+      "Foto struk siap",
     );
     await page.screenshot({
       path: `test-results/scan-after-capture-${width}.png`,
@@ -351,10 +359,7 @@ test("Kamera nyata browser uji: izin lewat klik, foto, retake, dan cleanup", asy
   await page.emulateMedia({ reducedMotion: "reduce" });
   await context.grantPermissions(["camera"]);
   await installCameraMonitor(page);
-  await openScan(page);
-  await page
-    .getByRole("button", { name: "Izinkan kamera", exact: true })
-    .click();
+  await openScan(page, "camera");
   await expect(
     page.getByRole("button", { name: "Ambil foto struk", exact: true }),
   ).toBeEnabled();
@@ -383,6 +388,19 @@ test("Kamera nyata browser uji: izin lewat klik, foto, retake, dan cleanup", asy
     .getByRole("button", { name: "Ambil foto struk", exact: true })
     .click();
   await expect(
+    page.getByRole("dialog", { name: "Analisis struk", exact: true }),
+  ).toBeVisible();
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () =>
+          (
+            window as unknown as CameraTestWindow
+          ).lastStream?.getVideoTracks()[0].readyState,
+      ),
+    )
+    .toBe("ended");
+  await expect(
     page.getByRole("dialog", { name: "Review struk" }),
   ).toBeVisible();
   await expect(page.getByLabel("Merchant (opsional)")).toHaveValue(
@@ -393,7 +411,7 @@ test("Kamera nyata browser uji: izin lewat klik, foto, retake, dan cleanup", asy
   );
   await expect(page.locator(".scan-items > li")).toHaveCount(4);
   await expect(page.locator(".scan-photo-summary")).toContainText(
-    "4 item dummy",
+    "Periksa dan sesuaikan rincian",
   );
   await expect
     .poll(() =>
@@ -458,6 +476,52 @@ test("Kamera nyata browser uji: izin lewat klik, foto, retake, dan cleanup", asy
   ).toBe(true);
 });
 
+test("Batal saat analisis foto kamera membersihkan stream dan foto sementara", async ({
+  page,
+  context,
+}) => {
+  await context.grantPermissions(["camera"]);
+  await installCameraMonitor(page);
+  await openScan(page, "camera");
+  await expect(
+    page.getByRole("button", { name: "Ambil foto struk", exact: true }),
+  ).toBeEnabled();
+  await page.clock.install();
+  await page
+    .getByRole("button", { name: "Ambil foto struk", exact: true })
+    .click();
+  await expect(
+    page.getByRole("dialog", { name: "Analisis struk", exact: true }),
+  ).toBeVisible();
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () =>
+          (
+            window as unknown as CameraTestWindow
+          ).lastStream?.getVideoTracks()[0].readyState,
+      ),
+    )
+    .toBe("ended");
+  await page.getByRole("button", { name: "Batal", exact: true }).click();
+  await page.clock.fastForward(5000);
+  await expect(
+    page.getByRole("dialog", { name: "Catat pengeluaran baru", exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("dialog", { name: "Review struk", exact: true }),
+  ).toHaveCount(0);
+  expect(
+    await page.evaluate(() => {
+      const state = window as unknown as CameraTestWindow;
+      return (
+        state.createdUrls.length > 0 &&
+        state.createdUrls.every((url) => state.revokedUrls.includes(url))
+      );
+    }),
+  ).toBe(true);
+});
+
 test("Kamera ditolak, pemulihan galeri dan Kembali tetap tersedia", async ({
   page,
 }) => {
@@ -493,10 +557,7 @@ test("Permintaan kamera terlambat setelah modal ditutup langsung dilepas", async
 }) => {
   await context.grantPermissions(["camera"]);
   await installCameraMonitor(page, true);
-  await openScan(page);
-  await page
-    .getByRole("button", { name: "Izinkan kamera", exact: true })
-    .click();
+  await openScan(page, "camera");
   await expect(
     page.getByText("Pilih Izinkan pada permintaan kamera browser."),
   ).toBeVisible();
@@ -518,10 +579,7 @@ test("Halaman tersembunyi menghentikan kamera tanpa membuka ulang otomatis", asy
 }) => {
   await context.grantPermissions(["camera"]);
   await installCameraMonitor(page);
-  await openScan(page);
-  await page
-    .getByRole("button", { name: "Izinkan kamera", exact: true })
-    .click();
+  await openScan(page, "camera");
   await expect(
     page.getByRole("button", { name: "Ambil foto struk" }),
   ).toBeEnabled();
@@ -595,7 +653,7 @@ test("Galeri valid, file rusak/tipe salah/oversize, dan validasi review", async 
     page.getByRole("dialog", { name: "Review struk" }),
   ).toBeVisible();
   await expect(page.getByLabel("Nama item 1", { exact: true })).toHaveValue("");
-  await page.getByRole("button", { name: /Simulasikan simpan/ }).click();
+  await page.getByRole("button", { name: /Simpan pengeluaran/ }).click();
   await expect(page.getByRole("dialog").getByRole("alert")).toContainText(
     "Periksa isian",
   );
@@ -604,14 +662,14 @@ test("Galeri valid, file rusak/tipe salah/oversize, dan validasi review", async 
   await page.getByLabel("Nama item 1", { exact: true }).fill("Kopi");
   await page.getByLabel("Harga satuan item 1", { exact: true }).fill("28000");
   await page.getByLabel("Diskon / kupon (Rp)").fill("30000");
-  await page.getByRole("button", { name: /Simulasikan simpan/ }).click();
+  await page.getByRole("button", { name: /Simpan pengeluaran/ }).click();
   await expect(
     page.getByText("Total pengeluaran harus lebih dari Rp0.", { exact: false }),
   ).toBeVisible();
   await page.getByLabel("Diskon / kupon (Rp)").fill("0");
-  await page.getByRole("button", { name: /Simulasikan simpan/ }).click();
+  await page.getByRole("button", { name: /Simpan pengeluaran/ }).click();
   await expect(
-    page.getByRole("dialog", { name: "Konfirmasi demo" }),
+    page.getByRole("dialog", { name: "Konfirmasi pengeluaran" }),
   ).toBeVisible();
   await expect(page.locator(".scan-success-hero")).toContainText("Rp28.000");
   expect(

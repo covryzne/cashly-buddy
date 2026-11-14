@@ -1,7 +1,10 @@
 ﻿import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import "react-day-picker/style.css";
+import "../styles/tokens.css";
 import "./globals.css";
+import "../styles/asset-loader.css";
+import "../styles/scan.css";
 import "../styles/date-time-picker.css";
 
 const jakarta = Plus_Jakarta_Sans({

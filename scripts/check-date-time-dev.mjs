@@ -12,7 +12,12 @@ try {
       reducedMotion: "reduce",
       viewport: { width: 390, height: 844 },
     });
-    await page.goto(new URL("/beranda", baseURL).href);
+    const response = await page.goto(new URL("/beranda", baseURL).href);
+    assert.equal(
+      response?.status(),
+      200,
+      "Dev server must compile before checking CSS",
+    );
     const values = await page.evaluate(() => {
       const probe = document.createElement("div");
       probe.style.cssText = "position:fixed;left:-10000px;width:320px;";

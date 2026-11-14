@@ -71,7 +71,7 @@ test("Detail, keyboard, tema, dan interaksi tidak memberi reward", async ({
     .getByRole("button", { name: "Catat pengeluaran" })
     .click();
   await expect(page.getByRole("dialog")).toContainText(
-    "Belum ada data yang disimpan",
+    "Pilih cara input yang paling praktis untukmu",
   );
   await page.keyboard.press("Escape");
   await page.getByRole("button", { name: /Ganti tema/ }).click();

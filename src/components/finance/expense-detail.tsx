@@ -29,7 +29,7 @@ export function ExpenseDetail({
       <div className="receipt-context">
         <span className="pill dialog-demo">
           <Sparkles size={12} />
-          Data demo · {period}
+          {period}
         </span>
         <span className="receipt-status">
           <ShieldCheck size={13} />
@@ -110,7 +110,7 @@ export function ExpenseDetail({
               <NotebookText size={17} />
               Catatan
             </h4>
-            <p>Catatan demo untuk pratinjau. Belum bisa diedit.</p>
+            <p>Belum ada catatan tambahan.</p>
           </section>
         </div>
       </article>
@@ -121,7 +121,7 @@ export function ExpenseDetail({
 export function ExpenseDetailActions({ onDone }: { onDone: () => void }) {
   return (
     <div className="receipt-actions">
-      <Button disabled title="Pengeditan belum tersedia pada pratinjau">
+      <Button disabled title="Pengeditan belum tersedia">
         <PencilLine size={18} />
         Ubah detail
       </Button>

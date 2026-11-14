@@ -56,7 +56,6 @@ export function AppNavigation({
           Catat pengeluaran
         </Button>
         <div className="sidebar-footer">
-          <span className="pill">Prototipe frontend</span>
           <p>
             Langkah kecil hari ini,
             <br />

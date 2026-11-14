@@ -1,4 +1,4 @@
-import { BookOpen, Sparkles, ClipboardList } from "lucide-react";
+import { BookOpen, Sparkles } from "lucide-react";
 import type { Category } from "@/mocks/fixtures/home";
 import { MoneyDisplay } from "./money-display";
 import { CategoryIcon } from "./category-icon";
@@ -22,7 +22,7 @@ export function WeeklyStory({
           <BookOpen size={26} />
         </span>
         <div>
-          <span className="receipt-eyebrow">Pratinjau mingguan</span>
+          <span className="receipt-eyebrow">Ringkasan mingguan</span>
           <h3>Seminggu, satu cerita kecil.</h3>
           <p>Yuk, lihat kembali catatan pengeluaranmu.</p>
         </div>
@@ -58,11 +58,6 @@ export function WeeklyStory({
           </p>
         </div>
       </div>
-      <p className="preview-note">
-        <ClipboardList size={18} />
-        Pratinjau data demo. Misi tetap belum direview; membuka cerita tidak
-        menambah XP atau streak.
-      </p>
     </article>
   );
 }
