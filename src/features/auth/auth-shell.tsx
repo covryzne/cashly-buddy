@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Check, Sparkles, Heart, Leaf } from "lucide-react";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
+import { LoginAssetPreloader } from "@/components/shared/asset-cache-bootstrap";
 import "@/styles/auth.css";
 
 export function AuthShell({
@@ -34,6 +35,7 @@ export function AuthShell({
   }[mode];
   return (
     <div className="auth-page">
+      {mode === "login" && <LoginAssetPreloader />}
       <a href="#auth-form-section" className="skip-link">
         Langsung ke form {copy.form}
       </a>

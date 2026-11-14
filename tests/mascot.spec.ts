@@ -47,12 +47,13 @@ test("Scene Spline asli termuat, canvas berukuran benar, tanpa reward baru", asy
 
 test("Scene dimuat langsung walau di bawah fold; tidak menampilkan poster saat loading", async ({
   page,
+  context,
 }) => {
   await page.setViewportSize({ width: 390, height: 200 });
   await page.emulateMedia({ reducedMotion: "no-preference" });
   let requested = false;
   let release: (() => void) | undefined;
-  await page.route(
+  await context.route(
     "https://prod.spline.design/**/scene.splinecode",
     async (route) => {
       requested = true;
@@ -111,8 +112,11 @@ test("Navigasi berulang membersihkan runtime dan tidak menghasilkan console erro
 
 test("Scene gagal diunduh tetap menampilkan poster dan ringkasan", async ({
   page,
+  context,
 }) => {
-  await page.route("https://prod.spline.design/**", (route) => route.abort());
+  await context.route("https://prod.spline.design/**", (route) =>
+    route.abort(),
+  );
   await page.goto("/beranda");
   await page.locator(".mascot-button").scrollIntoViewIfNeeded();
   await expect(page.locator(".mascot-button")).toHaveAttribute(
@@ -126,9 +130,10 @@ test("Scene gagal diunduh tetap menampilkan poster dan ringkasan", async ({
 
 test("Reduced motion tidak mengunduh scene dan memakai cutout", async ({
   page,
+  context,
 }) => {
   const sceneRequests: string[] = [];
-  page.on("request", (request) => {
+  context.on("request", (request) => {
     if (request.url().includes("scene.splinecode"))
       sceneRequests.push(request.url());
   });

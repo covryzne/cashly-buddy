@@ -20,7 +20,7 @@ npm run dev
 
 Buka http://localhost:3000: aplikasi mengarah ke `/login`. Pilih **Isi data contoh**,
 lalu **Masuk ke demo** untuk membuka `/beranda`. Acuan desain Beranda:
-`public/assets/cashly_beranda_varian_b_floating_cards/`.
+`../design-references/cashly_beranda_varian_b_floating_cards/`.
 
 ## Struktur folder
 
@@ -39,6 +39,7 @@ src/
     gamification/          # Logika tampilan fitur gamification
     home/                  # Komposisi Beranda dan interaksi pratinjau
   lib/
+    assets/                # Registrasi cache aset dan preload background
     api/                   # Tempat transport API saat tahap integrasi
     format/                # Utilitas format Rupiah dan tanggal bersama
     theme/                 # Utilitas tema
@@ -46,11 +47,40 @@ src/
     fixtures/              # Dummy data fiktif untuk prototipe frontend
   styles/                  # Styles bersama dan semantic tokens nantinya
 public/
-  assets/                  # Referensi desain dan UI kit yang disediakan
+  branding/                # Identitas visual runtime
+  icons/                   # Ikon PWA
+  mascot/                  # Ilustrasi Mochi
+  asset-worker.js          # Cache berversi untuk aset publik dalam allowlist
 ```
 
 Folder yang belum diimplementasikan berisi `.gitkeep` agar tersimpan di Git.
 Konfigurasi proyek, environment, dan `public/` berada di root, sejajar dengan `src/`.
+Referensi desain berada di `../design-references/`, di luar aplikasi Next.js.
+
+## Cache aset publik
+
+Checklist implementasi dan hasil validasi: `docs/asset-cache.md`.
+
+- Root mendaftarkan `/asset-worker.js` pada HTTPS/localhost, termasuk tunnel dev.
+  Saat form login muncul, gambar/ikon runtime dan scene Mochi disiapkan di
+  background tanpa menahan login atau membuat canvas/WebGL.
+- Worker memakai cache-first hanya untuk allowlist. Next image variants diterima
+  hanya jika sumbernya ada dalam daftar. HTML/RSC, auth, API, kredensial, foto
+  struk, dan respons error tidak disimpan. Font/JS/CSS tetap memakai cache HTTP
+  normal milik Next/browser; ini tidak menyediakan offline app shell.
+- Reduced motion dan Save-Data melewati preload scene besar. Beranda tetap dapat
+  memuat 3D ketika dipilih secara normal. Worker/cache yang tidak tersedia
+  memiliki fallback fetch biasa; gagal scene memakai ilustrasi Mochi.
+- **Naikkan VERSION di public/asset-worker.js setiap scene atau aset dalam daftar
+  berubah**, walaupun URL-nya sama. Daftar URL scene di worker dan
+  spline-mascot.tsx harus sama. Worker baru membersihkan versi aset Cashly lama
+  tanpa reload halaman atau mengubah cache lain.
+- Untuk rollback, terbitkan worker di URL yang sama dengan handler fetch dilepas
+  dan aktivasi yang membersihkan cache berawalan cashly-public-assets-, kemudian
+  unregister dirinya. Jangan hanya menghapus file worker, karena versi lama bisa
+  tetap mengendalikan klien. Domain tunnel berbeda memiliki cache terpisah.
+- Uji target: `npx playwright test tests/asset-cache.spec.ts tests/asset-worker.spec.ts tests/mascot.spec.ts --workers=3`.
+  Verifikasi Safari standalone pada iPhone fisik tetap diperlukan.
 
 ## Login demo
 
@@ -70,8 +100,9 @@ Konfigurasi proyek, environment, dan `public/` berada di root, sejajar dengan `s
   pencatatan pengeluaran menampilkan informasi tahap berikutnya.
 - Tema sistem/terang/gelap, navigasi mobile dengan safe area, sidebar desktop,
   fallback mascot, dukungan reduced motion, dan indikator offline.
-- Manifest dan ikon aplikasi Mochi tersedia. Tidak ada service worker, cache
-  data keuangan, offline writes, koneksi backend, atau pemberian reward.
+- Manifest dan ikon aplikasi Mochi tersedia. Service worker hanya menyimpan aset
+  publik dalam allowlist; tidak menyimpan HTML, data keuangan, API, auth, foto
+  struk, atau offline writes. Backend dan pemberian reward belum terhubung.
 - Ilustrasi statis Mochi terbaru memakai referensi `public/mascot/mochi-reference (2).png`
   (mahkota, jubah dan koin), dengan latar dihapus menggunakan imagegen bawaan.
   Master alpha: `public/mascot/mochi-crown-transparent.png`; versi WebP untuk login,
@@ -133,8 +164,9 @@ flag dibersihkan ketika akses ditolak/dicabut. Kamera tetap berhenti saat ditutu
   untuk konsistensi light/dark saat UI mulai diimplementasikan.
 - Letakkan data prototipe di `mocks/fixtures` dan pisahkan dari komponen
   presentasi. Data harus fiktif dan jelas sebagai demo, bukan data pengguna.
-- `public/assets` menjadi referensi implementasi, bukan kode yang langsung
-  disalin tanpa review. Aset publik diakses lewat `/assets/...`.
+- `../design-references` menjadi referensi implementasi di luar aplikasi Next.js.
+  Baca berkasnya langsung dari workspace; hanya aset runtime hasil implementasi
+  yang ditempatkan di public/branding, public/icons, dan public/mascot.
 
 Koneksi backend, autentikasi nyata, database, dan aturan bisnis yang otoritatif
 belum diimplementasikan pada tahap struktur ini.

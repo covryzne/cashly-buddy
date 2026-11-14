@@ -80,9 +80,12 @@ test("Detail, keyboard, tema, dan interaksi tidak memberi reward", async ({
   await page.reload();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
   await context.setOffline(true);
-  await expect(page.getByRole("status")).toContainText("offline");
+  const offline = page
+    .getByRole("status")
+    .filter({ hasText: "Kamu sedang offline." });
+  await expect(offline).toBeVisible();
   await context.setOffline(false);
-  await expect(page.getByRole("status")).toHaveCount(0);
+  await expect(offline).toHaveCount(0);
 });
 
 test("Manifest dan ikon PWA tersedia", async ({ request }) => {

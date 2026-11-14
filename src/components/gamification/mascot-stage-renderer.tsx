@@ -52,18 +52,20 @@ export function MascotStageRenderer({
     const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
     function update() {
       greetingRef.current = null;
-      const shouldLoad = !motion.matches && navigator.onLine;
+      const shouldLoad = !motion.matches;
       setEligible(shouldLoad);
       setPhase(shouldLoad ? "loading" : "poster");
     }
+    function retry() {
+      if (!motion.matches)
+        setPhase((current) => (current === "failed" ? "loading" : current));
+    }
     update();
     motion.addEventListener("change", update);
-    window.addEventListener("online", update);
-    window.addEventListener("offline", update);
+    window.addEventListener("online", retry);
     return () => {
       motion.removeEventListener("change", update);
-      window.removeEventListener("online", update);
-      window.removeEventListener("offline", update);
+      window.removeEventListener("online", retry);
     };
   }, []);
 

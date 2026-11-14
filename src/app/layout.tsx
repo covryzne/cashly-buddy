@@ -1,5 +1,6 @@
 ﻿import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
+import { AssetCacheBootstrap } from "@/components/shared/asset-cache-bootstrap";
 import "react-day-picker/style.css";
 import "../styles/tokens.css";
 import "./globals.css";
@@ -70,7 +71,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       </head>
       {/* Browser extensions may add body attributes before React hydrates.
           Keep this exception local; descendant hydration warnings stay active. */}
-      <body suppressHydrationWarning>{children}</body>
+      <body suppressHydrationWarning>
+        <AssetCacheBootstrap />
+        {children}
+      </body>
     </html>
   );
 }

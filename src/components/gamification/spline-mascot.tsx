@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { Application } from "@splinetool/runtime";
 import { createMochiMotion } from "@/lib/mochi-motion";
+import { prepareAssetCache } from "@/lib/assets/cache";
 
 export const MOCHI_SCENE =
   "https://prod.spline.design/R4tRoaLYG0dA8fQD/scene.splinecode";
@@ -37,13 +38,16 @@ export default function SplineMascot({
     if (wrapperRef.current) observer.observe(wrapperRef.current);
     async function loadScene() {
       try {
+        await prepareAssetCache(controller.signal);
+        if (disposed) return;
         app = new Application(canvas!, {
           renderOnDemand: true,
           htmlContentMode: "none",
         });
         const response = await fetch(MOCHI_SCENE, {
           signal: controller.signal,
-          // Revalidate because new Spline exports keep the same public URL.
+          // The asset worker serves its versioned cache first. Without it,
+          // revalidate the CDN response rather than keeping an old export.
           cache: "no-cache",
         });
         if (!response.ok)

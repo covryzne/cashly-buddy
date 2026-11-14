@@ -146,8 +146,9 @@ test.describe("Slide untuk memuat aset", () => {
   test.use({ reducedMotion: "no-preference" });
   test("Slide asli tampil pada scene dan kamera, menghormati reduced motion", async ({
     page,
+    context,
   }) => {
-    await page.route("**/scene.splinecode", () => {});
+    await context.route("**/scene.splinecode", () => {});
     await page.addInitScript(() => {
       navigator.mediaDevices.getUserMedia = () =>
         new Promise<MediaStream>(() => {});
